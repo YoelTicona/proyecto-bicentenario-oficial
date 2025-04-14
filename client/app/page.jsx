@@ -1,5 +1,6 @@
 import Image from "next/image";
 import styles from "./page.module.css";
+import PruebaBaseDatos from "./components/conexion";
 
 export default function Home() {
   return (
@@ -89,6 +90,8 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        <PruebaBaseDatos></PruebaBaseDatos>
+        
       </footer>
     </div>
   );

@@ -1,60 +1,59 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Swal from 'sweetalert2'
+import { generarCaptcha, validarCaptcha } from './../../utils/captcha'
+import FishDecorativo from '../../components/FishDecorativo'
 
 export default function IniciarSesion() {
   const [captcha, setCaptcha] = useState('')
-  const [inputCaptcha, setInputCaptcha] = useState('')
   const [verContrasenia, setVerContrasenia] = useState(false)
+  const [formData, setFormData] = useState({
+    usuario: '',
+    contrasenia: '',
+    captcha: ''
+  })
+
   const router = useRouter()
 
   useEffect(() => {
-    generarCaptcha()
+    setCaptcha(generarCaptcha())
   }, [])
 
-  const generarCaptcha = () => {
-    const caracteres = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-    let codigo = ''
-    for (let i = 0; i < 6; i++) {
-      codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length))
-    }
-    setCaptcha(codigo)
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const manejarEnvio = (e) => {
     e.preventDefault()
-    if (inputCaptcha !== captcha) {
+
+    if (!validarCaptcha(formData.captcha, captcha)) {
       Swal.fire({
         icon: 'error',
         title: 'Captcha incorrecto',
-        text: 'Por favor verifica el código mostrado.',
+        text: 'Por favor verifica el código mostrado.'
       })
-      generarCaptcha()
-    } else {
-      Swal.fire({
-        icon: 'success',
-        title: 'Inicio de sesión exitoso',
-        timer: 1500,
-        showConfirmButton: false,
-      })
-      setTimeout(() => router.push('/'), 1600)
+      setCaptcha(generarCaptcha())
+      return
     }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Inicio de sesión exitoso',
+      timer: 1500,
+      showConfirmButton: false
+    })
+
+    setTimeout(() => router.push('/'), 1600)
   }
 
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-[#889E73] px-4 overflow-hidden py-10">
-      {/* SVG pez decorativo */}
-      <div className="absolute bottom-10 left-10 z-0 animate-swim">
-        <svg viewBox="0 0 512 512" className="w-32 h-32">
-          <path
-            fill="#ffffff"
-            d="M96 256c0 35.35 7.2 68.87 20.2 99.5C84.15 365.2 64 388.6 64 416c0 8.837 7.164 16 16 16 27.41 0 50.83-20.15 60.5-52.2C187.1 440.8 256 480 256 480s68.88-39.19 115.5-100.2C381.2 411.9 404.6 432 432 432c8.836 0 16-7.163 16-16 0-27.41-20.15-50.83-52.2-60.5C408.8 324.9 416 291.4 416 256s-7.201-68.88-20.2-99.5C443.9 146.8 464 123.4 464 96c0-8.837-7.164-16-16-16-27.41 0-50.83 20.15-60.5 52.2C324.9 71.2 256 32 256 32s-68.87 39.2-115.5 100.2C130.8 100.1 107.4 80 80 80c-8.837 0-16 7.163-16 16 0 27.41 20.15 50.83 52.2 60.5C103.2 187.1 96 220.6 96 256z"
-          />
-        </svg>
-      </div>
 
+      <FishDecorativo />
       <div className="relative z-10 bg-white rounded-lg shadow-xl p-6 w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-4">
           <Image src="/logo_bicentenario.png" alt="Logo Bicentenario" width={80} height={80} />
@@ -68,13 +67,16 @@ export default function IniciarSesion() {
         <form onSubmit={manejarEnvio} className="space-y-4">
           <div>
             <label className="block text-gray-700">Usuario o correo</label>
-            <input type="text" required className="input" />
+            <input type="text" name="usuario" value={formData.usuario} onChange={handleChange} required className="input" />
           </div>
 
           <div className="relative">
             <label className="block text-gray-700">Contraseña</label>
             <input
               type={verContrasenia ? 'text' : 'password'}
+              name="contrasenia"
+              value={formData.contrasenia}
+              onChange={handleChange}
               required
               className="input pr-10"
             />
@@ -94,12 +96,13 @@ export default function IniciarSesion() {
             <div className="flex mt-2 gap-2">
               <input
                 type="text"
+                name="captcha"
+                value={formData.captcha}
+                onChange={handleChange}
                 className="input"
                 placeholder="Ingresa el código"
-                value={inputCaptcha}
-                onChange={(e) => setInputCaptcha(e.target.value)}
               />
-              <button type="button" onClick={generarCaptcha} className="bg-gray-800 text-white px-3 py-2 rounded">
+              <button type="button" onClick={() => setCaptcha(generarCaptcha())} className="bg-gray-800 text-white px-3 py-2 rounded">
                 ↻
               </button>
             </div>

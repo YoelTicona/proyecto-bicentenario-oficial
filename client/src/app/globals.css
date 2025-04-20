@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fff6db;
+  --foreground: #171717;
+  --font-body: 'Poppins', sans-serif;
+  --font-heading: 'Merriweather', serif;
+}
+.dark {
+  --background: #171717;
+  --foreground: #fff6db;
+}
+
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #fff6db;
+    --foreground: #000000;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fff6db;
+  opacity: 1;
+  background-image: radial-gradient(#ffcf40 0.5px, #fff6db 0.5px);
+  background-size: 10px 10px;
+}
+
+.text-outline {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Diseño de la imagen de portada */
+@layer utilities {
+  .clip-bicentenario {
+    clip-path: polygon(0 85%, 0 0, 100% 0, 100% 85%, 50% 100%);
+  }
+}
+
+/* Animacion de letras de bienvenida de la portada */
+@layer utilities {
+  .fade-in-up {
+    animation: fadeInUp 2s ease-out both;
+  }
+
+  .fade-in-left {
+    animation: fadeInLeft 2s ease-out both;
+  }
+
+  .fade-delay-1 {
+    animation-delay: 0.6s;
+  }
+
+  .fade-delay-2 {
+    animation-delay: 0.9s;
+  }
+
+  .fade-delay-3 {
+    animation-delay: 1.2s;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+button::after {
+  cursor: move;
+}
+
+/* Scrollbar personalizada (Webkit - Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 14px; /* ⬅️ Aumenta el ancho aquí */
+}
+
+::-webkit-scrollbar-track {
+  background: #e5e5e5;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #1f6f3d; /* Verde oscuro */
+  border-radius: 8px;
+  border: 3px solid #e5e5e5; /* Espaciado interior */
+}
+
+/* Scrollbar para Firefox */
+* {
+  scrollbar-width: thin; /* Puedes cambiar a 'auto' si prefieres */
+  scrollbar-color: #d39b00 #e5e5e5;
+}
+
+/* Animacion de peces */
+@layer utilities {
+  .animate-swim {
+    animation: swim 8s ease-in-out infinite;
+  }
+
+  @keyframes swim {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(40px); }
+    100% { transform: translateX(0); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-[#889E73];
+  }
+}
+
+
+
+/* Para crear cuenta*/
+@layer components {
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-[#889E73];
+  }
+}
+
+/* Animaciones para el not-found*/
+@layer utilities {
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

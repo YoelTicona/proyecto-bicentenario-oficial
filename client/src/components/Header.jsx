@@ -1,5 +1,6 @@
-'use client'
+// ARCHIVO MODIFICADO: Header.jsx con spinner de carga mientras se autentica
 
+'use client'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -7,6 +8,13 @@ import { usePathname } from 'next/navigation'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from './../firebase'
+
+// Spinner simple
+const LoaderSpinner = () => (
+  <div className="flex justify-center items-center p-2">
+    <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin" />
+  </div>
+)
 
 const navLinks = [
   { label: 'Inicio', href: '/' },
@@ -20,6 +28,7 @@ const Header = () => {
   const auth = getAuth()
   const [usuario, setUsuario] = useState(null)
   const [datosFirestore, setDatosFirestore] = useState(null)
+  const [loadingUsuario, setLoadingUsuario] = useState(true)
   const [showDropdown, setShowDropdown] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const dropdownRef = useRef()
@@ -29,25 +38,20 @@ const Header = () => {
       setUsuario(user)
       if (user) {
         try {
-          await user.reload() // 🔄 fuerza actualización de sesión Firebase
+          await user.reload()
           const ref = doc(db, 'Usuarios', user.uid)
           const snap = await getDoc(ref)
-          console.log("Documento Firestore:", snap.exists(), snap.data())
           if (snap.exists()) {
             setDatosFirestore(snap.data())
-          } else {
-            console.warn("Documento del usuario no encontrado en Firestore")
           }
         } catch (error) {
           console.error("Error al obtener datos del usuario:", error)
         }
-      } else {
-        setDatosFirestore(null)
       }
+      setLoadingUsuario(false)
     })
     return () => unsubscribe()
   }, [])
-  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -56,9 +60,7 @@ const Header = () => {
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const cerrarSesion = async () => {
@@ -88,7 +90,9 @@ const Header = () => {
             </Link>
           ))}
 
-          {usuario ? (
+          {loadingUsuario ? (
+            <LoaderSpinner />
+          ) : usuario ? (
             <div className="relative" ref={dropdownRef}>
               <div
                 onClick={() => setShowDropdown(!showDropdown)}
@@ -160,7 +164,7 @@ const Header = () => {
             </Link>
           ))}
 
-          {usuario ? (
+          {usuario && !loadingUsuario ? (
             <div className="w-full text-center border-t border-white pt-4">
               <p className="text-sm font-semibold">{usuario.displayName || usuario.email}</p>
               <Link href="/perfil" onClick={() => setMenuOpen(false)} className="block mt-2 text-sm hover:text-yellow-300">
@@ -184,11 +188,11 @@ const Header = () => {
                 Cerrar sesión
               </button>
             </div>
-          ) : (
+          ) : !usuario && !loadingUsuario ? (
             <Link href="/iniciar-sesion" onClick={() => setMenuOpen(false)} className="hover:text-yellow-300">
               Iniciar Sesión
             </Link>
-          )}
+          ) : <LoaderSpinner />}
         </div>
       </div>
     </header>

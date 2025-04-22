@@ -2,18 +2,10 @@
 import Swal from 'sweetalert2'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-<<<<<<< HEAD
 // Ejemplo en un componente para la bd
 import { db } from "../../../firebase/firebase-config";
 import { collection, addDoc } from "firebase/firestore";
 //aqui terminamos de importar
-=======
-import { validarContraseniaSegura } from './../../../utils/validacionesContrasenia'
-import { auth, db } from './../../../firebase'
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
-
->>>>>>> 8de5eccb322c4348ac4b25cb7436f5c982ca68af
 export default function RegistroUsuario() {
   const router = useRouter()
   const [paisesCiudades, setPaisesCiudades] = useState([])
@@ -51,7 +43,6 @@ export default function RegistroUsuario() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-<<<<<<< HEAD
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -91,65 +82,6 @@ export default function RegistroUsuario() {
       setExito(false);
     }
   };
-=======
-  // ====== ENVIO DE LOS DATOS ====== //
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-  
-    if (form.contrasenia !== form.confirmar) {
-      setError('Las contraseñas no coinciden')
-      return
-    }
-  
-    const validacion = validarContraseniaSegura(form.contrasenia)
-    if (validacion) {
-      setError(validacion)
-      return
-    }
-  
-    try {
-      // 1. Crear usuario en Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.contrasenia)
-      const user = userCredential.user
-  
-      // 2. Enviar correo de verificación
-      await sendEmailVerification(user)
-  
-      // 3. Guardar información en Firestore
-      const usuarioInfo = {
-        nombre: form.nombre,
-        apellidoPat: form.paterno,
-        apellidoMat: form.materno,
-        fechaNac: form.nacimiento,
-        genero: form.genero,
-        correo: form.email,
-        ciudad: form.ciudad,
-        pais: form.pais,
-        rol: form.rol,
-        verificado: false
-      }
-  
-      await setDoc(doc(db, 'Usuarios', user.uid), usuarioInfo)
-  
-      setExito(true)
-      setError('')
-  
-      Swal.fire({
-        icon: 'success',
-        title: '¡Cuenta creada!',
-        text: 'Te enviamos un correo de verificación',
-        confirmButtonText: 'Aceptar'
-      })
-  
-      // Opcional: redirigir
-      router.push('/iniciar-sesion')
-  
-    } catch (err) {
-      console.error(err)
-      setError(err.message || 'Ocurrió un error')
-    }
-  }
->>>>>>> 8de5eccb322c4348ac4b25cb7436f5c982ca68af
 
 
 

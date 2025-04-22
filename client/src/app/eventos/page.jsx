@@ -7,6 +7,10 @@ import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
 import { db } from "../../firebase/firebase-config"
 import { collection, addDoc, getDocs } from "firebase/firestore"
+import SkeletonCard from '../../components/SkeletonCard'
+import { useRouter } from 'next/navigation'
+
+
 
 const Eventos = () => {
   const [usuario] = useState(true)
@@ -38,6 +42,8 @@ const Eventos = () => {
     }
     obtenerEventos()
   }, [])
+  const router = useRouter()
+
 
   let eventosFiltrados = eventos.filter(e =>
     e.titulo.toLowerCase().includes(busqueda.toLowerCase()) &&
@@ -60,7 +66,10 @@ const Eventos = () => {
       {usuario && (
         <>
           <button className="fixed top-25 right-4 bg-orange-500 text-white rounded-full p-3 shadow-md z-50">🔔 Notificaciones</button>
-          <button onClick={() => setMostrarFormulario(true)} className="fixed top-24 right-4 bg-green-600 text-white rounded-full p-3 shadow-md z-50">➕ Añadir Evento</button>
+          <button onClick={() => router.push('/organizador')} className="fixed top-24 right-4 bg-green-600 text-white rounded-full p-3 shadow-md z-50 cursor-pointer">
+  ➕ Añadir Evento
+</button>
+
         </>
       )}
       <h1 className="text-3xl font-bold mb-6">Eventos del Bicentenario</h1>
@@ -91,16 +100,29 @@ const Eventos = () => {
         </select>
       </div>
 
+      
+
       <div className="grid sm:grid-cols-2 gap-6 mt-8">
-        {eventosFiltrados.map(evento => (
-          <div key={evento.id} className="bg-white p-4 rounded-lg shadow-md">
-            <img src={evento.imagen || "/anuncios/default.jpg"} className="rounded-md w-full h-48 object-cover" />
-            <h3 className="text-xl font-semibold mt-2">{evento.titulo}</h3>
-            <p className="text-sm text-gray-500">{(() => typeof evento.fecha?.toDate === 'function' ? evento.fecha.toDate().toLocaleDateString("es-BO") : new Date(evento.fecha).toLocaleDateString("es-BO"))()} - {evento.lugar || evento.ciudad || 'Sin lugar'}</p>
-            <button onClick={() => setEventoSeleccionado(evento)} className="mt-3 text-green-700 font-medium hover:underline">Ver más</button>
-          </div>
-        ))}
-      </div>
+  {eventos.length === 0
+    ? Array(4).fill().map((_, i) => <SkeletonCard key={i} />)
+    : eventosFiltrados.map(evento => (
+        <div key={evento.id} className="bg-white p-4 rounded-lg shadow-md">
+          <img src={evento.imagen || "/anuncios/default.jpg"} className="rounded-md w-full h-48 object-cover" />
+          <h3 className="text-xl font-semibold mt-2">{evento.titulo}</h3>
+          <p className="text-sm text-gray-500">
+            {(() =>
+              typeof evento.fecha?.toDate === 'function'
+                ? evento.fecha.toDate().toLocaleDateString("es-BO")
+                : new Date(evento.fecha).toLocaleDateString("es-BO")
+            )()} - {evento.lugar || evento.ciudad || 'Sin lugar'}
+          </p>
+          <button onClick={() => setEventoSeleccionado(evento)} className="mt-3 text-green-700 font-medium hover:underline">
+            Ver más
+          </button>
+        </div>
+      ))}
+</div>
+
 
       {eventoSeleccionado && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

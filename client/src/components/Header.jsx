@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
-import app from './../firebase'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from './../firebase'
 
 const navLinks = [
   { label: 'Inicio', href: '/' },
@@ -16,18 +17,37 @@ const navLinks = [
 
 const Header = () => {
   const pathname = usePathname()
-  const auth = getAuth(app)
+  const auth = getAuth()
   const [usuario, setUsuario] = useState(null)
+  const [datosFirestore, setDatosFirestore] = useState(null)
   const [showDropdown, setShowDropdown] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const dropdownRef = useRef()
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUsuario(user)
+      if (user) {
+        try {
+          await user.reload() // 🔄 fuerza actualización de sesión Firebase
+          const ref = doc(db, 'Usuarios', user.uid)
+          const snap = await getDoc(ref)
+          console.log("Documento Firestore:", snap.exists(), snap.data())
+          if (snap.exists()) {
+            setDatosFirestore(snap.data())
+          } else {
+            console.warn("Documento del usuario no encontrado en Firestore")
+          }
+        } catch (error) {
+          console.error("Error al obtener datos del usuario:", error)
+        }
+      } else {
+        setDatosFirestore(null)
+      }
     })
     return () => unsubscribe()
   }, [])
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -96,6 +116,11 @@ const Header = () => {
                     <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
                       <Link href="/agenda">Mi agenda</Link>
                     </li>
+                    {datosFirestore?.rol === 'organizador' && (
+                      <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
+                        <Link href="/organizador">Administrar eventos</Link>
+                      </li>
+                    )}
                     <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
                       <Link href="/contacto">Contáctanos</Link>
                     </li>
@@ -121,7 +146,7 @@ const Header = () => {
 
       {/* Menú móvil */}
       <div
-        className={`md:hidden absolute top-full left-0 w-full bg-green-800 text-white shadow-md z-60 transition-all duration-300 transform origin-top ${menuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'}`}
+        className={`md:hidden absolute top-full left-0 w-full bg-[#1d4f3f] text-white shadow-md z-40 transition-all duration-300 transform origin-top ${menuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'}`}
       >
         <div className="flex flex-col items-center py-4 space-y-4 text-lg">
           {navLinks.map((item) => (
@@ -144,6 +169,11 @@ const Header = () => {
               <Link href="/agenda" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
                 Mi agenda
               </Link>
+              {datosFirestore?.rol === 'organizador' && (
+                <Link href="/organizador" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
+                  Administrar eventos
+                </Link>
+              )}
               <Link href="/contacto" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
                 Contáctanos
               </Link>

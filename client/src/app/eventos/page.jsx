@@ -5,6 +5,10 @@ import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
+import { useEffect } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from './../../firebase' // Ajusta la ruta si tu archivo firebase.js está en otro lugar
+
 
 const Eventos = () => {
   const [usuario] = useState(true)
@@ -16,30 +20,37 @@ const Eventos = () => {
     { id: 2, titulo: 'Exposición Histórica', foto: '/anuncios/anuncio_2.jpg' }
   ]
 
-  const eventos = [
-    {
-      id: 1,
-      titulo: 'Feria Cultural de Sucre',
-      fecha: '2025-07-15',
-      lugar: 'Sucre',
-      descripcion: 'Una feria con muestras artísticas, danzas tradicionales y gastronomía nacional.',
-      coordinadores: 'Ministerio de Cultura',
-      foto: '/anuncios/anuncio_1.jpeg'
-    },
-    {
-      id: 2,
-      titulo: 'Conferencia de Historia Boliviana',
-      fecha: '2025-06-12',
-      lugar: 'La Paz',
-      descripcion: 'Expertos disertan sobre los 200 años de historia republicana.',
-      coordinadores: 'Universidad Mayor de San Andrés',
-      foto: '/anuncios/anuncio_2.jpg'
-    }
-  ]
+  const [eventos, setEventos] = useState([])
 
-  const eventosFiltrados = eventos.filter(e =>
-    e.titulo.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  useEffect(() => {
+    const obtenerEventos = async () => {
+      const querySnapshot = await getDocs(collection(db, "eventos"))
+      const eventosFirebase = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setEventos(eventosFirebase)
+    }
+
+    obtenerEventos()
+  }, [])
+
+
+  let eventosFiltrados = eventos
+    .filter(e =>
+      e.titulo.toLowerCase().includes(busqueda.toLowerCase()) &&
+      (!filtroCategoria || e.categoria === filtroCategoria) &&
+      (!filtroModalidad || e.modalidad === filtroModalidad) &&
+      (!filtroFecha || e.fecha === filtroFecha) &&
+      (!filtroCosto || Number(e.costo) <= Number(filtroCosto))
+    )
+
+  if (filtroOrden === 'puntuacion') {
+    eventosFiltrados = eventosFiltrados.sort((a, b) => b.puntuacion - a.puntuacion)
+  } else if (filtroOrden === 'fecha') {
+    eventosFiltrados = eventosFiltrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+  }
+
 
   const sliderSettings = {
     dots: true,
@@ -50,6 +61,12 @@ const Eventos = () => {
     autoplay: true,
     autoplaySpeed: 4000,
   }
+  const [filtroCategoria, setFiltroCategoria] = useState('')
+  const [filtroModalidad, setFiltroModalidad] = useState('')
+  const [filtroFecha, setFiltroFecha] = useState('')
+  const [filtroCosto, setFiltroCosto] = useState('')
+  const [filtroOrden, setFiltroOrden] = useState('')
+  s
 
   return (
     <div className="px-4 py-8 max-w-6xl mx-auto">
@@ -81,6 +98,40 @@ const Eventos = () => {
           className="w-full p-3 border rounded-lg"
         />
       </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
+        <select className="p-2 border rounded" onChange={e => setFiltroCategoria(e.target.value)}>
+          <option value="">Categoría</option>
+          <option value="infantil">Infantil</option>
+          <option value="musical">Musical</option>
+          <option value="de adultos">De Adultos</option>
+          <option value="cívico">Cívico</option>
+          <option value="historia">Historia</option>
+          <option value="cultura">Cultura</option>
+        </select>
+        <select className="p-2 border rounded" onChange={e => setFiltroModalidad(e.target.value)}>
+          <option value="">Modalidad</option>
+          <option value="virtual">Virtual</option>
+          <option value="presencial">Presencial</option>
+          <option value="hibrido">Híbrido</option>
+        </select>
+        <input
+          type="date"
+          className="p-2 border rounded"
+          onChange={e => setFiltroFecha(e.target.value)}
+        />
+        <input
+          type="number"
+          className="p-2 border rounded"
+          placeholder="Máximo costo"
+          onChange={e => setFiltroCosto(e.target.value)}
+        />
+        <select className="p-2 border rounded" onChange={e => setFiltroOrden(e.target.value)}>
+          <option value="">Ordenar</option>
+          <option value="puntuacion">Más Relevantes</option>
+          <option value="fecha">Más recientes</option>
+        </select>
+      </div>
+
 
       {/* Lista de eventos */}
       <div className="grid sm:grid-cols-2 gap-6 mt-8">

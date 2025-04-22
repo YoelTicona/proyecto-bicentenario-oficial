@@ -46,16 +46,28 @@ export default function IniciarSesion() {
         email: formData.usuario,
         password: formData.contrasenia
       })
-  
+    
+      if (!response.user.emailVerified) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Verifica tu correo',
+          text: 'Tu cuenta aún no ha sido verificada. Por favor revisa tu email.',
+          confirmButtonText: 'Ir a verificación'
+        }).then(() => {
+          router.push('/iniciar-sesion/verificacion-pendiente')
+        })
+        return
+      }
+    
       Swal.fire({
         icon: 'success',
         title: 'Inicio de sesión exitoso',
-        text: `Bienvenido, ${response.nombre || 'usuario'}`,
+        text: `Bienvenido, ${response.user.email}`,
         timer: 1500,
         showConfirmButton: false
       })
-  
-      setTimeout(() => router.push('/'), 1600)
+    
+      setTimeout(() => router.push('/'), 1600)    
   
     } catch (error) {
       Swal.fire({

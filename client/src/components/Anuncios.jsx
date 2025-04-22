@@ -6,19 +6,19 @@ const Anuncios = () => {
         titulo: 'Concurso de Historia Boliviana',
         descripcion: 'Participa y gana premios recordando los momentos clave de nuestra independencia.',
         imagen: '/anuncios/anuncio_1.jpeg',
-        link: '#',
+        link: 'https://www.facebook.com/SEAutonomias/posts/te-interesa-la-historia-de-las-mujeres-en-bolivia-entonces-este-concurso-es-para/955651373273413/',
       },
       {
         titulo: 'Expo Bicentenario 2025',
         descripcion: 'Del 1 al 5 de agosto en La Paz. Eventos culturales, charlas y exposiciones.',
         imagen: '/anuncios/anuncio_2.jpg',
-        link: '#',
+        link: 'www.facebook.com/photo.php?fbid=1005550891611867&id=100064708954963&set=a.633094615524165',
       },
       {
-        titulo: 'Publica tu historia familiar',
-        descripcion: 'Contribuye con tu testimonio para enriquecer el archivo cultural del país.',
+        titulo: 'Concurso del libro de Historia de Bolivia en su Bicentenario',
+        descripcion: 'CONVOCATORIA-LIBRO-HISTORIA-DE-BOLIVIA-EN-SU-BICENTENARIO-2DA-PUBLICACION.',
         imagen: '/anuncios/anuncio_3.jpg',
-        link: '#',
+        link: 'https://bicentenario.bo/concurso-del-libro-de-historia-de-bolivia-en-su-bicentenario/',
       },
     ]
   

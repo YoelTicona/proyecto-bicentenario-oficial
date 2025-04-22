@@ -3,7 +3,9 @@ import Swal from 'sweetalert2'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { validarContraseniaSegura } from './../../../utils/validacionesContrasenia'
-import { registrarUsuario } from '../../../services/auth'
+import { auth, db } from './../../../firebase'
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
+import { doc, setDoc } from 'firebase/firestore'
 
 export default function RegistroUsuario() {
   const router = useRouter()
@@ -12,10 +14,9 @@ export default function RegistroUsuario() {
   const [verRepetida, setVerRepetida] = useState(false)
   const [error, setError] = useState('')
   const [exito, setExito] = useState(false)
-
   const [form, setForm] = useState({
     nombre: '', paterno: '', materno: '', nacimiento: '', genero: '',
-    email: '', pais: '', ciudad: '', contrasenia: '', confirmar: ''
+    email: '', pais: '', ciudad: '', contrasenia: '', confirmar: '', rol: ''
   })
 
   useEffect(() => {
@@ -34,41 +35,65 @@ export default function RegistroUsuario() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  // ====== ENVIO DE LOS DATOS ====== //
   const handleSubmit = async (e) => {
     e.preventDefault()
   
     if (form.contrasenia !== form.confirmar) {
       setError('Las contraseñas no coinciden')
-      setExito(false)
       return
     }
   
     const validacion = validarContraseniaSegura(form.contrasenia)
     if (validacion) {
       setError(validacion)
-      setExito(false)
       return
     }
   
-    // Envío real al backend y verificación con Firebase
-    const resultado = await registrarUsuario(form)
+    try {
+      // 1. Crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.contrasenia)
+      const user = userCredential.user
   
-    if (resultado.ok) {
-      setError('')
+      // 2. Enviar correo de verificación
+      await sendEmailVerification(user)
+  
+      // 3. Guardar información en Firestore
+      const usuarioInfo = {
+        nombre: form.nombre,
+        apellidoPat: form.paterno,
+        apellidoMat: form.materno,
+        fechaNac: form.nacimiento,
+        genero: form.genero,
+        correo: form.email,
+        ciudad: form.ciudad,
+        pais: form.pais,
+        rol: form.rol,
+        verificado: false
+      }
+  
+      await setDoc(doc(db, 'Usuarios', user.uid), usuarioInfo)
+  
       setExito(true)
+      setError('')
+  
       Swal.fire({
         icon: 'success',
-        title: 'Registro exitoso',
-        text: `Se envió un correo de verificación a ${form.email}`,
-        confirmButtonText: 'Continuar'
+        title: '¡Cuenta creada!',
+        text: 'Te enviamos un correo de verificación',
+        confirmButtonText: 'Aceptar'
       })
-      router.push("/iniciar-sesion")
-    } else {
-      setError(resultado.error || "Error al registrar")
-      setExito(false)
-    }
-  }  
   
+      // Opcional: redirigir
+      router.push('/iniciar-sesion')
+  
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Ocurrió un error')
+    }
+  }
+
+
 
   return (
     <div className="min-h-screen bg-[#889E73] flex items-center justify-center px-4 py-10">
@@ -83,7 +108,21 @@ export default function RegistroUsuario() {
 
         <div className="grid sm:grid-cols-3 gap-4">
           <input name="email" type="email" placeholder="Correo electrónico" className="input" required onChange={handleChange} />
-          <input name="nacimiento" type="date" className="input" required onChange={handleChange} />
+          <div className="relative group w-full">
+            <input
+              name="nacimiento"
+              type="date"
+              className="input"
+              required
+              onChange={handleChange}
+              value={form.nacimiento}
+            />
+            <div className="absolute top-full left-0 mt-1 w-64 p-2 text-sm text-white bg-gray-700 rounded shadow opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition">
+              Por favor, selecciona tu fecha de nacimiento
+            </div>
+          </div>
+
+
           <select name="genero" className="input" required onChange={handleChange}>
             <option value="">Género</option>
             <option value="Masculino">Masculino</option>
@@ -142,6 +181,27 @@ export default function RegistroUsuario() {
           </div>
         </div>
 
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="relative group w-full">
+            <select
+              name="rol"
+              className="input w-full"
+              required
+              onChange={handleChange}
+            >
+              <option value="">Rol</option>
+              <option value="usuario">Usuario Casual</option>
+              <option value="organizador">Organizador</option>
+            </select>
+
+            {/* Tooltip */}
+            <div className="absolute top-full left-0 mt-1 w-64 p-2 text-sm text-white bg-gray-700 rounded shadow opacity-0 group-hover:opacity-100 transition">
+              {form.rol === '' && 'Seleccione un rol'}
+              {form.rol === 'usuario' && 'Puede explorar, comentar y registrar eventos en su agenda'}
+              {form.rol === 'organizador' && 'Puede crear, editar y gestionar eventos del sistema'}
+            </div>
+          </div>
+        </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         {exito && <p className="text-green-600 text-sm">¡Registro exitoso!</p>}
 

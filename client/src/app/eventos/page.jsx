@@ -5,16 +5,35 @@ import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
+// Ejemplo en un componente para la bd
+import { db } from "../../firebase/firebase-config";
+import { collection, addDoc } from "firebase/firestore";
+//aqui terminamos de importar
 
 const Eventos = () => {
   const [usuario] = useState(true)
   const [busqueda, setBusqueda] = useState('')
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null)
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [nuevoEvento, setNuevoEvento] = useState({
+    titulo: '',
+    descripcion: '',
+    fecha: '',
+    modalidad: '',
+    costo: '',
+    puntuacion: '1',
+    ciudad: '',
+    departamento: '',
+    direccion: '',
+    categoria: '',
+    
+  });
 
   const eventosDestacados = [
     { id: 1, titulo: 'Gala del Bicentenario', foto: '/anuncios/anuncio_1.jpeg' },
     { id: 2, titulo: 'Exposición Histórica', foto: '/anuncios/anuncio_2.jpg' }
   ]
+
 
   const eventos = [
     {
@@ -37,6 +56,7 @@ const Eventos = () => {
     }
   ]
 
+
   const eventosFiltrados = eventos.filter(e =>
     e.titulo.toLowerCase().includes(busqueda.toLowerCase())
   )
@@ -58,6 +78,16 @@ const Eventos = () => {
           🔔 Notificaciones
         </button>
       )}
+      {/*añadi esto para la vista del admin caso prueba*/}
+      {usuario && (
+        <button
+          onClick={() => setMostrarFormulario(true)}
+          className="fixed top-24 right-4 bg-green-600 text-white rounded-full p-3 shadow-md z-50"
+        >
+          ➕ Añadir Evento
+        </button>
+      )}
+
 
       <h1 className="text-3xl font-bold mb-6">Eventos del Bicentenario</h1>
 
@@ -120,6 +150,123 @@ const Eventos = () => {
           </div>
         </div>
       )}
+
+
+
+      {/* Modal de añadir evento */}
+      {mostrarFormulario && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl relative">
+            <button
+              className="absolute top-2 right-2 text-xl"
+              onClick={() => setMostrarFormulario(false)}
+            >
+              ✖
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4">Crear Nuevo Evento</h2>
+
+            {[
+              { label: "Título", campo: "titulo" },
+              { label: "Descripción", campo: "descripcion" },
+              { label: "Fecha (YYYY-MM-DD)", campo: "fecha" },
+              { label: "Modalidad", campo: "modalidad" },
+              { label: "Costo", campo: "costo" },
+              { label: "Puntuación", campo: "puntuacion" },
+              { label: "Ciudad", campo: "ciudad" },
+              { label: "Departamento", campo: "departamento" },
+              { label: "Dirección", campo: "direccion" },
+              { label: "Categoría (ID numérico)", campo: "categoriaId" },
+            ].map(({ label, campo }) => (
+              <div key={campo} className="mb-2">
+                <label className="block mb-1">{label}</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  value={nuevoEvento[campo] || ''}
+                  onChange={(e) =>
+                    setNuevoEvento({ ...nuevoEvento, [campo]: e.target.value })
+                  }
+                />
+              </div>
+            ))}
+
+
+            <button
+              className="mt-4 w-full bg-blue-600 text-white py-2 rounded"
+              onClick={async () => {
+                if (
+                  !nuevoEvento.titulo ||
+                  !nuevoEvento.fecha ||
+                  !nuevoEvento.modalidad ||
+                  !nuevoEvento.ciudad
+                ) {
+                  alert("Por favor, completa todos los campos obligatorios.");
+                  return;
+                }
+
+                try {
+                  // 1️⃣ Guardar ubicación y obtener su ID
+                  const ubicacionRef = await addDoc(collection(db, "Ubicaciones"), {
+                    ciudad: nuevoEvento.ciudad,
+                    departamento: nuevoEvento.departamento,
+                    direccion: nuevoEvento.direccion,
+                  });
+
+                  // 2️⃣ Guardar evento con referencia a la ubicación
+                  const eventoRef = await addDoc(collection(db, "Eventos"), {
+                    titulo: nuevoEvento.titulo,
+                    descripcion: nuevoEvento.descripcion,
+                    fecha: nuevoEvento.fecha,
+                    modalidad: nuevoEvento.modalidad,
+                    costo: nuevoEvento.costo,
+                    puntuacion: parseFloat(nuevoEvento.puntuacion),
+                    categorias: [parseInt(nuevoEvento.categoriaId)],
+                    id_ubicacion: ubicacionRef.id,
+                  });
+
+                  // 3️⃣ Crear subcolección de expositores (ejemplo vacío)
+                  await addDoc(collection(eventoRef, "Expositores"), {
+                    nombre: "Expositor por definir",
+                    institucion: "",
+                  });
+
+                  // 4️⃣ Crear subcolección de patrocinadores (ejemplo vacío)
+                  await addDoc(collection(eventoRef, "Patrocinadores"), {
+                    nombre: "Patrocinador por definir",
+                    empresa: "",
+                  });
+
+                  alert(" Evento creado correctamente con ubicación y subcolecciones");
+
+                  // Limpiar
+                  setMostrarFormulario(false);
+                  setNuevoEvento({
+                    titulo: '',
+                    descripcion: '',
+                    fecha: '',
+                    modalidad: '',
+                    costo: '',
+                    puntuacion: '1',
+                    ciudad: '',
+                    lugar: '',
+                    departamento: '',
+                    categoriaId: '',
+                  });
+                } catch (error) {
+                  console.error("Error al crear evento:", error);
+                  alert(" Error al crear el evento");
+                }
+              }}
+
+
+            >
+              Guardar Evento
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

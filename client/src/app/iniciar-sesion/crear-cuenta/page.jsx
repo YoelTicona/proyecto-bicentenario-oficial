@@ -1,7 +1,9 @@
 'use client'
-
+import Swal from 'sweetalert2'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { validarContraseniaSegura } from './../../../utils/validacionesContrasenia'
+import { registrarUsuario } from '../../../services/auth'
 
 export default function RegistroUsuario() {
   const router = useRouter()
@@ -32,25 +34,41 @@ export default function RegistroUsuario() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-
+  
     if (form.contrasenia !== form.confirmar) {
       setError('Las contraseñas no coinciden')
       setExito(false)
       return
     }
-
-    if (form.contrasenia.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
+  
+    const validacion = validarContraseniaSegura(form.contrasenia)
+    if (validacion) {
+      setError(validacion)
       setExito(false)
       return
     }
-
-    setError('')
-    setExito(true)
-    alert('Usuario registrado con éxito (simulado)')
-  }
+  
+    // Envío real al backend y verificación con Firebase
+    const resultado = await registrarUsuario(form)
+  
+    if (resultado.ok) {
+      setError('')
+      setExito(true)
+      Swal.fire({
+        icon: 'success',
+        title: 'Registro exitoso',
+        text: `Se envió un correo de verificación a ${form.email}`,
+        confirmButtonText: 'Continuar'
+      })
+      router.push("/iniciar-sesion")
+    } else {
+      setError(resultado.error || "Error al registrar")
+      setExito(false)
+    }
+  }  
+  
 
   return (
     <div className="min-h-screen bg-[#889E73] flex items-center justify-center px-4 py-10">

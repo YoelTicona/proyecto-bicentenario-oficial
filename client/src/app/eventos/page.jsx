@@ -8,6 +8,7 @@ import Image from 'next/image'
 // Ejemplo en un componente para la bd
 import { db } from "../../firebase/firebase-config";
 import { collection, addDoc, getDocs } from "firebase/firestore";
+import { useEffect } from 'react'
 //aqui terminamos de importar
 
 const Eventos = () => {
@@ -49,6 +50,12 @@ const Eventos = () => {
     obtenerEventos()
   }, [])
 
+  const [filtroCategoria, setFiltroCategoria] = useState('')
+  const [filtroModalidad, setFiltroModalidad] = useState('')
+  const [filtroFecha, setFiltroFecha] = useState('')
+  const [filtroCosto, setFiltroCosto] = useState('')
+  const [filtroOrden, setFiltroOrden] = useState('')
+
 
   let eventosFiltrados = eventos
     .filter(e =>
@@ -74,12 +81,6 @@ const Eventos = () => {
     autoplay: true,
     autoplaySpeed: 4000,
   }
-  const [filtroCategoria, setFiltroCategoria] = useState('')
-  const [filtroModalidad, setFiltroModalidad] = useState('')
-  const [filtroFecha, setFiltroFecha] = useState('')
-  const [filtroCosto, setFiltroCosto] = useState('')
-  const [filtroOrden, setFiltroOrden] = useState('')
-  s
 
   return (
     <div className="px-4 py-8 max-w-6xl mx-auto">

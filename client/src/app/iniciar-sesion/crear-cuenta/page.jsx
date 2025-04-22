@@ -2,18 +2,11 @@
 import Swal from 'sweetalert2'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-<<<<<<< HEAD
-// Ejemplo en un componente para la bd
-import { db } from "../../../firebase/firebase-config";
-import { collection, addDoc } from "firebase/firestore";
-//aqui terminamos de importar
-=======
 import { validarContraseniaSegura } from './../../../utils/validacionesContrasenia'
 import { auth, db } from './../../../firebase'
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
 
->>>>>>> 8de5eccb322c4348ac4b25cb7436f5c982ca68af
 export default function RegistroUsuario() {
   const router = useRouter()
   const [paisesCiudades, setPaisesCiudades] = useState([])
@@ -32,15 +25,6 @@ export default function RegistroUsuario() {
       .then(data => setPaisesCiudades(data.data))
   }, [])
 
-  /* useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await addDoc(collection(db, "Usuarios"));
-      querySnapshot.forEach(doc => console.log(doc.id, doc.data()));
-    };
-
-    fetchData();
-  }, []); */
-
   const paises = paisesCiudades.map(p => p.country)
   const ciudades = form.pais
     ? paisesCiudades.find(p => p.country === form.pais)?.cities || []
@@ -51,47 +35,6 @@ export default function RegistroUsuario() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-<<<<<<< HEAD
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (form.contrasenia !== form.confirmar) {
-      setError("Las contraseñas no coinciden");
-      setExito(false);
-      return;
-    }
-  
-    if (form.contrasenia.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      setExito(false);
-      return;
-    }
-  
-    try {
-      // ✅ Crear documento adicional en Firestore
-      await addDoc(collection(db, "Usuarios"), {
-        apellidoMat: form.materno,
-        apellidoPat: form.paterno,
-        ciudad: form.ciudad,
-        correo: form.email,
-        fechaNac: form.nacimiento,
-        genero: form.genero,
-        nombre: form.nombre,
-        pais: form.pais,
-        rol: form.rol ?? 'user',
-        contrasenia: form.contrasenia,
-      });
-  
-      setError("");
-      setExito(true);
-      alert("Usuario registrado correctamente ✅");
-    } catch (error) {
-      console.error("Error de registro:", error.message);
-      setError(error.message);
-      setExito(false);
-    }
-  };
-=======
   // ====== ENVIO DE LOS DATOS ====== //
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -149,7 +92,6 @@ export default function RegistroUsuario() {
       setError(err.message || 'Ocurrió un error')
     }
   }
->>>>>>> 8de5eccb322c4348ac4b25cb7436f5c982ca68af
 
 
 

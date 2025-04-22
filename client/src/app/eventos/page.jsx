@@ -1,17 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import Image from 'next/image'
 // Ejemplo en un componente para la bd
-import { db } from "../../firebase/firebase-config";
-import { collection, addDoc } from "firebase/firestore";
+import { db,auth } from "../../firebase/firebase-config";
+import { collection, addDoc,doc,getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from 'firebase/auth'
+
+
 //aqui terminamos de importar
 
 const Eventos = () => {
-  const [usuario] = useState(true)
+  const [usuario, setUsuario] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null)
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -26,8 +29,25 @@ const Eventos = () => {
     departamento: '',
     direccion: '',
     categoria: '',
-    
+
   });
+  const [rol, setRol] = useState(null)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUsuario(user)
+        const docRef = doc(db, 'Usuarios', user.uid)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          setRol(docSnap.data().rol)
+        }
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
+
 
   const eventosDestacados = [
     { id: 1, titulo: 'Gala del Bicentenario', foto: '/anuncios/anuncio_1.jpeg' },
@@ -79,12 +99,12 @@ const Eventos = () => {
         </button>
       )}
       {/*añadi esto para la vista del admin caso prueba*/}
-      {usuario && (
+      {rol === 'organizador' && (
         <button
           onClick={() => setMostrarFormulario(true)}
-          className="fixed top-24 right-4 bg-green-600 text-white rounded-full p-3 shadow-md z-50"
+          className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition z-50"
         >
-          ➕ Añadir Evento
+          ➕ Crear evento
         </button>
       )}
 

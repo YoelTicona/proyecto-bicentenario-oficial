@@ -1,11 +1,12 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Swal from 'sweetalert2'
 import { generarCaptcha, validarCaptcha } from './../../utils/captcha'
 import FishDecorativo from '../../components/FishDecorativo'
+import { loginUsuario } from '../../services/auth'
+
 
 export default function IniciarSesion() {
   const [captcha, setCaptcha] = useState('')
@@ -27,9 +28,9 @@ export default function IniciarSesion() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault()
-
+  
     if (!validarCaptcha(formData.captcha, captcha)) {
       Swal.fire({
         icon: 'error',
@@ -39,17 +40,46 @@ export default function IniciarSesion() {
       setCaptcha(generarCaptcha())
       return
     }
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Inicio de sesión exitoso',
-      timer: 1500,
-      showConfirmButton: false
-    })
-
-    setTimeout(() => router.push('/'), 1600)
+  
+    try {
+      const response = await loginUsuario({
+        email: formData.usuario,
+        password: formData.contrasenia
+      })
+    
+      if (!response.user.emailVerified) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Verifica tu correo',
+          text: 'Tu cuenta aún no ha sido verificada. Por favor revisa tu email.',
+          confirmButtonText: 'Ir a verificación'
+        }).then(() => {
+          router.push('/iniciar-sesion/verificacion-pendiente')
+        })
+        return
+      }
+    
+      Swal.fire({
+        icon: 'success',
+        title: 'Inicio de sesión exitoso',
+        text: `Bienvenido, ${response.user.email}`,
+        timer: 1500,
+        showConfirmButton: false
+      })
+    
+      setTimeout(() => router.push('/'), 1600)    
+  
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de inicio de sesión',
+        text: error.message
+      })
+      setCaptcha(generarCaptcha())
+    }
   }
-
+  
+  // ENVIO DEL FORMULARIO DE LOGIN 
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-[#889E73] px-4 overflow-hidden py-10">
 

@@ -1,5 +1,4 @@
 import 'aos/dist/aos.css'
-import AOS from 'aos'
 const Anuncios = () => {
     const anuncios = [
       {
@@ -49,4 +48,4 @@ const Anuncios = () => {
     )
   }
   
-  export default Anuncios;  
+  export default Anuncios;

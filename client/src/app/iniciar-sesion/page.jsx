@@ -1,27 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Swal from 'sweetalert2'
-import { generarCaptcha, validarCaptcha } from './../../utils/captcha'
 import FishDecorativo from '../../components/FishDecorativo'
+import ReCAPTCHA from 'react-google-recaptcha'
 import { loginUsuario } from '../../services/auth'
-
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebase-config";
 
 export default function IniciarSesion() {
-  const [captcha, setCaptcha] = useState('')
   const [verContrasenia, setVerContrasenia] = useState(false)
+  const [recaptchaToken, setRecaptchaToken] = useState('')  // ✅
   const [formData, setFormData] = useState({
     usuario: '',
-    contrasenia: '',
-    captcha: ''
+    contrasenia: ''
   })
-
   const router = useRouter()
-
-  useEffect(() => {
-    setCaptcha(generarCaptcha())
-  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -29,60 +24,94 @@ export default function IniciarSesion() {
   }
 
   const manejarEnvio = async (e) => {
-    e.preventDefault()
-  
-    if (!validarCaptcha(formData.captcha, captcha)) {
+    e.preventDefault();
+
+    if (!recaptchaToken) {
       Swal.fire({
-        icon: 'error',
-        title: 'Captcha incorrecto',
-        text: 'Por favor verifica el código mostrado.'
-      })
-      setCaptcha(generarCaptcha())
-      return
+        icon: 'warning',
+        title: 'Verificación requerida',
+        text: 'Por favor, confirma que no eres un robot.'
+      });
+      return;
     }
-  
+
     try {
-      const response = await loginUsuario({
+      const user = await loginUsuario({
         email: formData.usuario,
         password: formData.contrasenia
-      })
-    
-      if (!response.user.emailVerified) {
+      });
+
+      if (!user.emailVerified) {
         Swal.fire({
           icon: 'warning',
-          title: 'Verifica tu correo',
-          text: 'Tu cuenta aún no ha sido verificada. Por favor revisa tu email.',
-          confirmButtonText: 'Ir a verificación'
-        }).then(() => {
-          router.push('/iniciar-sesion/verificacion-pendiente')
-        })
-        return
+          title: 'Correo no verificado',
+          text: 'Tu cuenta aún no ha sido verificada. ¿Deseas reenviar el correo de verificación?',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, reenviar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            router.push('/iniciar-sesion/verificacion-pendiente');
+          }
+        });
+        return;
       }
-    
+      
+
       Swal.fire({
         icon: 'success',
-        title: 'Inicio de sesión exitoso',
-        text: `Bienvenido, ${response.user.email}`,
-        timer: 1500,
+        title: `Bienvenido`,
+        text: `${user.email} \n ¡Has iniciado sesión correctamente!`,
+        timer: 2000,
         showConfirmButton: false
-      })
-    
-      setTimeout(() => router.push('/'), 1600)    
-  
+      });
+
+      // Actualizamos el campo verificado en Firestore
+      try {
+        const usuarioRef = doc(db, "Usuarios", user.uid);
+        await updateDoc(usuarioRef, {
+          verificado: true
+        });
+        console.log("Campo verificado actualizado a true en Firestore");
+      } catch (error) {
+        console.error("Error actualizando Firestore:", error.message);
+      }
+
+
+      setTimeout(() => router.push('/'), 1600);
+
     } catch (error) {
+      console.error("Error al iniciar sesión:", error.code, error.message);
+
       Swal.fire({
         icon: 'error',
         title: 'Error de inicio de sesión',
-        text: error.message
-      })
-      setCaptcha(generarCaptcha())
+        text: 'El usuario no esta registrado o la contraseña es incorrecta.\n' + traducirError(error.code)
+      });
     }
-  }
-  
-  // ENVIO DEL FORMULARIO DE LOGIN 
+  };
+
+
+
+  // Función para traducir códigos de error de Firebase
+  const traducirError = (codigo) => {
+    switch (codigo) {
+      case 'auth/user-not-found':
+        return 'No existe una cuenta con ese correo.';
+      case 'auth/wrong-password':
+        return 'La contraseña es incorrecta.';
+      case 'auth/too-many-requests':
+        return 'Demasiados intentos fallidos. Inténtalo más tarde.';
+      case 'auth/invalid-email':
+        return 'El correo electrónico ingresado no es válido.';
+      default:
+        return 'Error desconocido. Intenta de nuevo.';
+    }
+  };
+
+
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-[#889E73] px-4 overflow-hidden py-10">
-
       <FishDecorativo />
       <div className="relative z-10 bg-white rounded-lg shadow-xl p-6 w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-4">
@@ -118,24 +147,12 @@ export default function IniciarSesion() {
             </span>
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-gray-700">Captcha</label>
-            <div className="bg-gray-100 border p-2 text-center tracking-widest font-mono text-lg">
-              {captcha}
-            </div>
-            <div className="flex mt-2 gap-2">
-              <input
-                type="text"
-                name="captcha"
-                value={formData.captcha}
-                onChange={handleChange}
-                className="input"
-                placeholder="Ingresa el código"
-              />
-              <button type="button" onClick={() => setCaptcha(generarCaptcha())} className="bg-gray-800 text-white px-3 py-2 rounded">
-                ↻
-              </button>
-            </div>
+            <ReCAPTCHA
+              sitekey="6LeQVSYrAAAAANZKNRt-QIAMFMNB-luGKhmcKp5y"  // ✅ Tu site key
+              onChange={(token) => setRecaptchaToken(token)}
+            />
           </div>
 
           <button

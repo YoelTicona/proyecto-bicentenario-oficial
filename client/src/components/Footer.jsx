@@ -1,4 +1,4 @@
-import { FaFacebookF, FaTwitter, FaYoutube, FaLinkedinIn } from 'react-icons/fa'
+import { FaFacebookF, FaTwitter, FaYoutube, FaLinkedinIn, FaTiktok } from 'react-icons/fa'
 
 const Footer = () => {
   return (
@@ -13,18 +13,19 @@ const Footer = () => {
         {/* Enlaces legales */}
         <div className="flex flex-col items-center md:items-start space-y-1">
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm font-medium">
-            <a href="/terminos" className="hover:text-white">Términos de Uso</a>
-            <a href="/privacidad" className="hover:text-white">Política de Privacidad</a>
+            <a href="terminos" className="hover:text-white">Términos de Uso</a>
+            <a href="privacidad" className="hover:text-white">Política de Privacidad</a>
           </div>
         </div>
 
         {/* Redes sociales + powered */}
         <div className="flex flex-col items-center md:items-end space-y-3">
           <div className="flex space-x-4 text-lg">
-            <a href="#"><FaFacebookF className="hover:text-white" /></a>
-            <a href="#"><FaTwitter className="hover:text-white" /></a>
-            <a href="#"><FaYoutube className="hover:text-white" /></a>
-            <a href="#"><FaLinkedinIn className="hover:text-white" /></a>
+            <a href="https://www.facebook.com/profile.php?id=61561370416171"><FaFacebookF className="hover:text-white" /></a>
+            <a href="https://x.com/delegaPresiden"><FaTwitter className="hover:text-white" /></a>
+            <a href="https://www.youtube.com/@BicentenarioBolivia2025"><FaYoutube className="hover:text-white" /></a>
+            <a href="https://www.tiktok.com/@bicentenario.de.b"><FaTiktok className="hover:text-white" /></a>
+            
           </div>
           <p className="text-xs text-gray-500">
             Desarrollado por <span className="text-white font-semibold">Equipo BoliVive</span>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getAuth, sendEmailVerification } from 'firebase/auth'
 import { doc, updateDoc } from 'firebase/firestore'
-import { db } from './../firebase'
+import { db } from './../firebase/firebase-config'
 import Swal from 'sweetalert2'
 import { useRouter } from 'next/navigation'
 

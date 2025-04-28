@@ -1,4 +1,4 @@
-import { playfair_display, merriweather } from './ui/fonts';
+import { playfair_display, merriweather } from '../utils/fonts';
 import "./globals.css";
 import Header from "./../components/Header";
 import Footer from "./../components/Footer";

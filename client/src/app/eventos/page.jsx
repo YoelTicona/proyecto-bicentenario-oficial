@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
-import Image from 'next/image'
+
 import { db } from "../../firebase/firebase-config"
 import { collection, addDoc, getDocs } from "firebase/firestore"
 import SkeletonCard from '../../components/SkeletonCard'

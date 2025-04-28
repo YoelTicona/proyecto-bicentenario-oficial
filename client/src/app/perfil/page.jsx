@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getAuth, updateProfile } from 'firebase/auth'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
-import { db, storage } from './../../firebase'
+import { db, storage } from './../../firebase/firebase-config'
 import Image from 'next/image'
 import Swal from 'sweetalert2'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'

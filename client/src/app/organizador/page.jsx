@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, addDoc, Timestamp } from 'firebase/firestore'
-import { db } from './../../firebase'
+import { db } from '../../firebase/firebase-config'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 import { motion } from 'framer-motion'
@@ -197,5 +197,8 @@ export default function PaginaOrganizador() {
         </div>
       </form>
     </motion.div>
-  )
+
+
+
+)
 }

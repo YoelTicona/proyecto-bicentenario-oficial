@@ -1,5 +1,3 @@
-// ARCHIVO MODIFICADO: Header.jsx con spinner de carga mientras se autentica
-
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -7,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
-import { db } from './../firebase'
+import { db } from './../firebase/firebase-config'
 
 // Spinner simple
 const LoaderSpinner = () => (
@@ -35,25 +33,37 @@ const Header = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUsuario(user)
       if (user) {
+        await user.reload();
+        setUsuario(user); // Siempre seteamos usuario
         try {
-          await user.reload()
-          const ref = doc(db, 'Usuarios', user.uid)
-          const snap = await getDoc(ref)
+          const ref = doc(db, 'Usuarios', user.uid);
+          const snap = await getDoc(ref);
           if (snap.exists()) {
-            setDatosFirestore(snap.data())
+            setDatosFirestore(snap.data());
           }
         } catch (error) {
-          console.error("Error al obtener datos del usuario:", error)
+          console.error("Error al obtener datos del usuario:", error);
         }
+      } else {
+        setUsuario(null);
+        setDatosFirestore(null);
       }
-      setLoadingUsuario(false)
-    })
-    return () => unsubscribe()
-  }, [])
+
+      setLoadingUsuario(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
 
   useEffect(() => {
+    /*************  ✨ Windsurf Command ⭐  *************/
+    /**
+     * Cierra el men  desplegable al hacer clic fuera de  l.
+     * Se utiliza en el evento 'mousedown' del documento.
+     * @param {MouseEvent} event - El evento de clic.
+     */
+    /*******  c978b4ef-75df-4aa9-b1e8-6868ae80ba8e  *******/
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false)
@@ -73,7 +83,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-[#1d4f3f] text-white shadow-md">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo_bicentenario.png" alt="Logo" width={40} height={40} />
+          <img src="/logo_bicentenario.png" alt="Logo" width={40} height={40} />
           <span className="text-lg font-semibold">Bicentenario Bolivia</span>
         </Link>
 
@@ -105,7 +115,13 @@ const Header = () => {
                     {usuario.displayName?.charAt(0) || usuario.email.charAt(0)}
                   </span>
                 )}
-                <span className="text-sm">{usuario.displayName || usuario.email}</span>
+                <span className="text-sm flex items-center gap-1">
+                  {usuario.displayName || usuario.email}
+                  {!usuario.emailVerified && (
+                    <span className="text-xs text-red-400">(No verificado)</span>
+                  )}
+                </span>
+
               </div>
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-56 bg-white text-black rounded shadow-lg overflow-hidden">
@@ -196,7 +212,6 @@ const Header = () => {
         </div>
       </div>
     </header>
-  )
-}
+  )}
 
 export default Header

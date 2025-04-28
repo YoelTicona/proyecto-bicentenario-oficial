@@ -51,46 +51,29 @@ export default function RegistroUsuario() {
 
   // Actualiza handleChange
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
 
-    // Si está escribiendo contraseña, evaluar fuerza
-    if (name === 'contrasenia') {
-      setFuerzaContrasenia(evaluarFuerza(value));
-    }
-  };
-
+<<<<<<< HEAD
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (form.contrasenia !== form.confirmar) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Las contraseñas no coinciden'
-      });
+      setError("Las contraseñas no coinciden");
+      setExito(false);
       return;
     }
-
+  
     if (form.contrasenia.length < 6) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Contraseña débil',
-        text: 'La contraseña debe tener al menos 6 caracteres'
-      });
+      setError("La contraseña debe tener al menos 6 caracteres");
+      setExito(false);
       return;
     }
-
+  
     try {
-      // 1. Crear usuario en Authentication
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.contrasenia);
-      const user = userCredential.user;
-
-      // 2. Enviar correo de verificación
-      await sendEmailVerification(user);
-
-      // 3. Guardar los datos en Firestore (usamos mismo UID)
-      await setDoc(doc(db, "Usuarios", user.uid), {
+      // ✅ Crear documento adicional en Firestore
+      await addDoc(collection(db, "Usuarios"), {
         apellidoMat: form.materno,
         apellidoPat: form.paterno,
         ciudad: form.ciudad,
@@ -99,51 +82,80 @@ export default function RegistroUsuario() {
         genero: form.genero,
         nombre: form.nombre,
         pais: form.pais,
-        rol: form.rol || 'usuario',
-        verificado: false // Nuevo campo importante
+        rol: form.rol ?? 'user',
+        contrasenia: form.contrasenia,
       });
-
-      // 4. Mostrar éxito
+  
+      setError("");
+      setExito(true);
+      alert("Usuario registrado correctamente ✅");
+    } catch (error) {
+      console.error("Error de registro:", error.message);
+      setError(error.message);
+      setExito(false);
+    }
+  };
+=======
+  // ====== ENVIO DE LOS DATOS ====== //
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+  
+    if (form.contrasenia !== form.confirmar) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+  
+    const validacion = validarContraseniaSegura(form.contrasenia)
+    if (validacion) {
+      setError(validacion)
+      return
+    }
+  
+    try {
+      // 1. Crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.contrasenia)
+      const user = userCredential.user
+  
+      // 2. Enviar correo de verificación
+      await sendEmailVerification(user)
+  
+      // 3. Guardar información en Firestore
+      const usuarioInfo = {
+        nombre: form.nombre,
+        apellidoPat: form.paterno,
+        apellidoMat: form.materno,
+        fechaNac: form.nacimiento,
+        genero: form.genero,
+        correo: form.email,
+        ciudad: form.ciudad,
+        pais: form.pais,
+        rol: form.rol,
+        verificado: false
+      }
+  
+      await setDoc(doc(db, 'Usuarios', user.uid), usuarioInfo)
+  
+      setExito(true)
+      setError('')
+  
       Swal.fire({
         icon: 'success',
-        title: 'Registro exitoso',
-        text: 'Se ha enviado un correo de verificación. Por favor revisa tu bandeja de entrada.',
-        timer: 4000,
-        showConfirmButton: false
-      });
-
-      setForm({
-        nombre: '', paterno: '', materno: '', nacimiento: '', genero: '',
-        email: '', pais: '', ciudad: '', contrasenia: '', confirmar: '', rol: ''
-      });
-
-      // Opcional: redireccionar al login luego de unos segundos
-      setTimeout(() => router.push('/iniciar-sesion'), 4500);
-
-    } catch (error) {
-      console.error("Error de registro:", error.code, error.message);
-
-      // Mostrar error con Swal
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: traducirError(error.code)
-      });
+        title: '¡Cuenta creada!',
+        text: 'Te enviamos un correo de verificación',
+        confirmButtonText: 'Aceptar'
+      })
+  
+      // Opcional: redirigir
+      router.push('/iniciar-sesion')
+  
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Ocurrió un error')
     }
-  };
-  // Función para traducir códigos de error de Firebase a mensajes amigables
-  const traducirError = (codigo) => {
-    switch (codigo) {
-      case 'auth/email-already-in-use':
-        return 'Este correo ya está en uso.';
-      case 'auth/invalid-email':
-        return 'El correo no es válido.';
-      case 'auth/weak-password':
-        return 'La contraseña es muy débil.';
-      default:
-        return 'Ocurrió un error inesperado. Inténtalo de nuevo.';
-    }
-  };
+  }
+>>>>>>> 8de5eccb322c4348ac4b25cb7436f5c982ca68af
+
+
 
   return (
     <div className="min-h-screen bg-[#889E73] flex items-center justify-center px-4 py-10">

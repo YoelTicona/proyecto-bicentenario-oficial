@@ -141,6 +141,11 @@ const Header = () => {
                         <Link href="/organizador">Administrar eventos</Link>
                       </li>
                     )}
+                    {datosFirestore?.rol === 'superusuario' && (
+                      <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
+                        <Link href="/superusuario">Panel Superusuario</Link>
+                      </li>
+                    )}
                     <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
                       <Link href="/contacto">Contáctanos</Link>
                     </li>
@@ -194,6 +199,11 @@ const Header = () => {
                   Administrar eventos
                 </Link>
               )}
+              {datosFirestore?.rol === 'superusuario' && (
+                <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
+                  <Link href="/superusuario">Panel Superusuario</Link>
+                </li>
+              )}
               <Link href="/contacto" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
                 Contáctanos
               </Link>
@@ -212,6 +222,7 @@ const Header = () => {
         </div>
       </div>
     </header>
-  )}
+  )
+}
 
 export default Header

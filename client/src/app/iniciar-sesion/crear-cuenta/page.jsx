@@ -22,6 +22,7 @@ export default function RegistroUsuario() {
   })
   // Nuevos estados
   const [fuerzaContrasenia, setFuerzaContrasenia] = useState('');
+
   // Nueva función para evaluar fuerza de la contraseña
   const evaluarFuerza = (password) => {
     let puntos = 0;
@@ -36,6 +37,7 @@ export default function RegistroUsuario() {
     if (puntos === 5) return 'Fuerte';
     return '';
   };
+  
 
 
   useEffect(() => {

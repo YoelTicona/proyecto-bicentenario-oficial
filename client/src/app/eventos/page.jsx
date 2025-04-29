@@ -1,4 +1,5 @@
 'use client'
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 import { useEffect, useState } from 'react'
 import Slider from 'react-slick'
@@ -10,6 +11,7 @@ import { collection, addDoc, getDocs,doc, getDoc } from "firebase/firestore"
 import SkeletonCard from '../../components/SkeletonCard'
 import { useRouter } from 'next/navigation'
 import { onAuthStateChanged } from "firebase/auth";
+
 
 
 
@@ -37,6 +39,7 @@ const Eventos = () => {
   ]
 
   useEffect(() => {
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUsuario(user)
@@ -46,18 +49,27 @@ const Eventos = () => {
           setRol(docSnap.data().rol)
         }
       }
-    })
-    return () => unsubscribe()
-  }, [])
-
+    });
+    return () => unsubscribe();
+  }, []);
   useEffect(() => {
     const obtenerEventos = async () => {
-      const querySnapshot = await getDocs(collection(db, "Eventos"))
-      const eventosFirebase = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-      setEventos(eventosFirebase)
+      try {
+        const querySnapshot = await getDocs(collection(db, "Eventos"))
+        const eventosObtenidos = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        setEventos(eventosObtenidos)
+      } catch (error) {
+        console.error("Error al obtener eventos:", error)
+      }
     }
+  
     obtenerEventos()
   }, [])
+  
+  
   const router = useRouter()
 
 
@@ -132,7 +144,23 @@ const Eventos = () => {
         <input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar eventos..." className="w-full p-3 border rounded-lg" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
-        <select className="p-2 border rounded" onChange={e => setFiltroCategoria(e.target.value)}><option value="">Categoría</option><option value="1">Infantil</option><option value="2">Historia</option><option value="3">Cultura</option></select>
+        <select className="p-2 border rounded" onChange={e => setFiltroCategoria(e.target.value)}>
+
+          <option value="">Categoria</option>
+          <option value="Académico">Académico</option>
+          <option value="Adultos Mayores">Adultos Mayores</option>
+          <option value="Comunitario">Comunitario</option>
+          <option value="Cultural">Cultural</option>
+          <option value="Cívico">Cívico</option>
+          <option value="Deportivo">Deportivo</option>
+          <option value="Gratuito">Gratuito</option>
+          <option value="Juvenil">Juvenil</option>
+          <option value="Infantil">Infantil</option>
+          <option value="Musical">Musical</option>
+          <option value="Todo Publico">Todo Publico</option>
+          <option value="Religioso">Religioso</option>
+
+        </select>
         <select className="p-2 border rounded" onChange={e => setFiltroModalidad(e.target.value)}><option value="">Modalidad</option><option value="virtual">Virtual</option><option value="presencial">Presencial</option></select>
         <input type="date" className="p-2 border rounded" onChange={e => setFiltroFecha(e.target.value)} />
         <input type="number" className="p-2 border rounded" placeholder="Máximo costo" onChange={e => setFiltroCosto(e.target.value)} />

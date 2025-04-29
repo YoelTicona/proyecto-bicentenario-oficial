@@ -5,10 +5,12 @@ import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 
-import { db } from "../../firebase/firebase-config"
-import { collection, addDoc, getDocs } from "firebase/firestore"
+import { db, auth } from "../../firebase/firebase-config"
+import { collection, addDoc, getDocs,doc, getDoc } from "firebase/firestore"
 import SkeletonCard from '../../components/SkeletonCard'
 import { useRouter } from 'next/navigation'
+import { onAuthStateChanged } from "firebase/auth";
+
 
 
 

@@ -6,12 +6,12 @@ import Swal from 'sweetalert2'
 import FishDecorativo from '../../components/FishDecorativo'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { loginUsuario } from '../../services/auth'
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc,getDoc,setDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase-config";
 
 export default function IniciarSesion() {
   const [verContrasenia, setVerContrasenia] = useState(false)
-  const [recaptchaToken, setRecaptchaToken] = useState('')  // ✅
+  const [recaptchaToken, setRecaptchaToken] = useState('')  // 
   const [formData, setFormData] = useState({
     usuario: '',
     contrasenia: ''
@@ -25,7 +25,7 @@ export default function IniciarSesion() {
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
-
+  
     if (!recaptchaToken) {
       Swal.fire({
         icon: 'warning',
@@ -34,13 +34,13 @@ export default function IniciarSesion() {
       });
       return;
     }
-
+  
     try {
       const user = await loginUsuario({
         email: formData.usuario,
         password: formData.contrasenia
       });
-
+  
       if (!user.emailVerified) {
         Swal.fire({
           icon: 'warning',
@@ -56,8 +56,24 @@ export default function IniciarSesion() {
         });
         return;
       }
-      
-
+  
+      // 🔥 Revisamos si existe en Firestore
+      const usuarioRef = doc(db, "Usuarios", user.uid);
+      const usuarioDoc = await getDoc(usuarioRef);
+  
+      if (!usuarioDoc.exists()) {
+        // 👈 Si NO existe, lo creamos automáticamente
+        await setDoc(usuarioRef, {
+          nombre: user.displayName || '',
+          correo: user.email,
+          rol: 'usuario',
+          verificado: true
+        });
+        console.log("✅ Usuario creado en Firestore automáticamente.");
+      } else {
+        console.log("✅ Usuario encontrado en Firestore.");
+      }
+  
       Swal.fire({
         icon: 'success',
         title: `Bienvenido`,
@@ -65,31 +81,21 @@ export default function IniciarSesion() {
         timer: 2000,
         showConfirmButton: false
       });
-
-      // Actualizamos el campo verificado en Firestore
-      try {
-        const usuarioRef = doc(db, "Usuarios", user.uid);
-        await updateDoc(usuarioRef, {
-          verificado: true
-        });
-        console.log("Campo verificado actualizado a true en Firestore");
-      } catch (error) {
-        console.error("Error actualizando Firestore:", error.message);
-      }
-
-
+  
       setTimeout(() => router.push('/'), 1600);
-
+  
     } catch (error) {
       console.error("Error al iniciar sesión:", error.code, error.message);
-
+  
       Swal.fire({
         icon: 'error',
         title: 'Error de inicio de sesión',
-        text: 'El usuario no esta registrado o la contraseña es incorrecta.\n' + traducirError(error.code)
+        text: 'El usuario no está registrado o la contraseña es incorrecta.\n' + traducirError(error.code)
       });
     }
   };
+  
+  
 
 
 

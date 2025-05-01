@@ -193,3 +193,11 @@ button::after {
     transform: translateY(-15px);
   }
 }
+/* Posicionar el botón del chat arriba del ThemeToggle */
+.boton-chat-bicentenario {
+  position: fixed;
+  bottom:   100px;
+  right: 20px;
+  z-index: 9999;
+}
+

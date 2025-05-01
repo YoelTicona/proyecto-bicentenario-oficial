@@ -57,21 +57,21 @@ export default function IniciarSesion() {
         return;
       }
   
-      // 🔥 Revisamos si existe en Firestore
+      //  Revisamos si existe en Firestore
       const usuarioRef = doc(db, "Usuarios", user.uid);
       const usuarioDoc = await getDoc(usuarioRef);
   
       if (!usuarioDoc.exists()) {
-        // 👈 Si NO existe, lo creamos automáticamente
+        //  Si NO existe, lo creamos automáticamente
         await setDoc(usuarioRef, {
           nombre: user.displayName || '',
           correo: user.email,
           rol: 'usuario',
           verificado: true
         });
-        console.log("✅ Usuario creado en Firestore automáticamente.");
+        console.log(" Usuario creado en Firestore automáticamente.");
       } else {
-        console.log("✅ Usuario encontrado en Firestore.");
+        console.log(" Usuario encontrado en Firestore.");
       }
   
       Swal.fire({

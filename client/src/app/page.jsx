@@ -16,6 +16,7 @@ export default function Home() {
       <Anuncios />
       <DocumentosLegales />
       <AvisoLegal />
+      
     </div>
   )
 }

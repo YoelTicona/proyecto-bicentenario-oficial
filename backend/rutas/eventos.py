@@ -9,12 +9,18 @@ router = APIRouter()
 class Evento(BaseModel):
     titulo: str
     descripcion: Optional[str] = None
-    fecha: str
+    fecha: str  # Formato "YYYY-MM-DD"
+    hora_inicio: Optional[str] = None  # Ej: "10:00"
+    hora_fin: Optional[str] = None     # Ej: "13:00"
     ubicacion: Optional[str] = None
-    tipo: Optional[str] = "general"
+    tipo: Optional[str] = "general"    # Ej: historia, cultura, cívico
+    modalidad: Optional[str] = "presencial"  # virtual/presencial
+    foto_evento: Optional[str] = None
+    costo: Optional[float] = 0.0
+    puntuacion: Optional[float] = None  # del 1 al 5
 
 # POST: Crear evento público
-@router.post("/eventos/")
+'''@router.post("/eventos/")
 def crear_evento(evento: Evento):
     evento_id = str(uuid4())
     db.collection("Eventos").document(evento_id).set(evento.dict())
@@ -24,7 +30,19 @@ def crear_evento(evento: Evento):
 @router.get("/eventos/")
 def listar_eventos():
     docs = db.collection("Eventos").stream()
+    return [{"id": doc.id, **doc.to_dict()} for doc in docs]'''
+
+@router.post("/eventos/")
+def crear_evento(evento: Evento):
+    evento_id = str(uuid4())
+    db.collection("Eventos").document(evento_id).set(evento.dict())
+    return {"message": "Evento creado", "id": evento_id}
+
+@router.get("/eventos/")
+def listar_eventos():
+    docs = db.collection("Eventos").stream()
     return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+
 
 # GET: Obtener un evento por ID
 @router.get("/eventos/{evento_id}")

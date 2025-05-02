@@ -24,7 +24,7 @@ class HistorialActividad(BaseModel):
     fecha: Optional[str] = None
 
 # POST: Registrar una actividad
-@router.post("/usuarios/historial/")
+'''@router.post("/usuarios/historial/")
 def registrar_actividad(actividad: HistorialActividad, usuario=Depends(verificar_token)):
     uid = usuario["uid"]
     id_registro = str(uuid4())
@@ -40,4 +40,21 @@ def registrar_actividad(actividad: HistorialActividad, usuario=Depends(verificar
 def obtener_historial(usuario=Depends(verificar_token)):
     uid = usuario["uid"]
     docs = db.collection("Usuarios").document(uid).collection("HistorialActividades").stream()
+    return [{"id": doc.id, **doc.to_dict()} for doc in docs]'''
+@router.post("/usuarios/historial/")
+def registrar_actividad(actividad: HistorialActividad):
+    uid = "PRUEBA-UID"
+    id_registro = str(uuid4())
+
+    if not actividad.fecha:
+        actividad.fecha = datetime.utcnow().isoformat()
+
+    db.collection("Usuarios").document(uid).collection("HistorialActividades").document(id_registro).set(actividad.dict())
+    return {"message": "Actividad registrada", "id": id_registro}
+
+@router.get("/usuarios/historial/")
+def obtener_historial():
+    uid = "PRUEBA-UID"
+    docs = db.collection("Usuarios").document(uid).collection("HistorialActividades").stream()
     return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+

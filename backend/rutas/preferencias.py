@@ -23,7 +23,7 @@ async def verificar_token(credenciales: HTTPAuthorizationCredentials = Depends(s
         raise HTTPException(status_code=401, detail="Token inválido")
 
 # Crear preferencia
-@router.post("/usuarios/preferencias/")
+'''@router.post("/usuarios/preferencias/")
 def agregar_preferencia(preferencia: Preferencia, usuario=Depends(verificar_token)):
     uid = usuario["uid"]
     id_preferencia = str(uuid4())
@@ -37,4 +37,20 @@ def obtener_preferencias(usuario=Depends(verificar_token)):
     uid = usuario["uid"]
     col_ref = db.collection("Usuarios").document(uid).collection("Preferencias")
     docs = col_ref.stream()
+    return [{"id": doc.id, **doc.to_dict()} for doc in docs]'''
+
+
+@router.post("/usuarios/preferencias/")
+def agregar_preferencia(preferencia: Preferencia):
+    uid = "PRUEBA-UID"
+    pref_id = str(uuid4())
+
+    db.collection("Usuarios").document(uid).collection("Preferencias").document(pref_id).set(preferencia.dict())
+    return {"message": "Preferencia registrada", "id": pref_id}
+
+@router.get("/usuarios/preferencias/")
+def listar_preferencias():
+    uid = "PRUEBA-UID"
+    docs = db.collection("Usuarios").document(uid).collection("Preferencias").stream()
     return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+

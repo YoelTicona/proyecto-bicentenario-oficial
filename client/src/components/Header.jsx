@@ -146,6 +146,11 @@ const Header = () => {
                         <Link href="/superusuario">Panel Superusuario</Link>
                       </li>
                     )}
+                    {datosFirestore?.rol === 'superusuario' && (
+                      <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
+                        <Link href="/superusuario">Panel Dashboard</Link>
+                      </li>
+                    )}
                     <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
                       <Link href="/contacto">Contáctanos</Link>
                     </li>

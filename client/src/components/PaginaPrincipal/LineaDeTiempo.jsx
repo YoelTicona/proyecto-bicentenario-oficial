@@ -31,12 +31,12 @@ export default function LineaDeTiempo() {
       </p>
 
       <div
-        className="bg-cover bg-center px-4 py-10 rounded-3xl shadow-xl border-1 border-yellow-500 mt-6"
+        className="bg-cover bg-center px-4 py-10 rounded-3xl shadow-xl border-1 border-yellow-500 mt-1"
         style={{ backgroundImage: "url('/FondoLineaTiempoOscuro.jpg')" }}
       >
 
         <div className="overflow-x-auto">
-          <div className="relative flex items-center gap-12 px-8 min-w-[800px] md:min-w-full pb-10">
+          <div className="relative flex items-center gap-12 px-8 min-w-[800px] md:min-w-full pb-10 py-2">
             {/* Línea base */}
             <div className="absolute top-8 left-0 right-0 h-1 bg-black z-0 rounded-full" />
 

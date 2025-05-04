@@ -109,13 +109,13 @@ export default function AgendaUsuario() {
               <div className="flex justify-end gap-2 mt-2">
                 <button
                   onClick={() => router.push(`/eventos/${e.id}`)}
-                  className="text-sm px-3 py-1 bg-blue-600 text-white rounded"
+                  className="text-sm px-3 py-1 bg-blue-600 text-white rounded cursor-pointer"
                 >
                   Abrir
                 </button>
                 <button
                   onClick={() => eliminarEvento(e.id)}
-                  className="text-sm px-3 py-1 bg-red-600 text-white rounded"
+                  className="text-sm px-3 py-1 bg-red-600 text-white rounded cursor-pointer"
                 >
                   Eliminar
                 </button>

@@ -1,10 +1,11 @@
 'use client'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-
+import SkeletonCarrusel from '../../components/SkeletonCarrusel';
 import { useEffect, useState } from 'react'
 import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
+import { useSearchParams } from 'next/navigation';
 
 import { db, auth } from "../../firebase/firebase-config"
 import { collection, addDoc, getDocs, doc, getDoc} from "firebase/firestore"
@@ -13,34 +14,12 @@ import { useRouter } from 'next/navigation'
 import { setDoc, serverTimestamp} from "firebase/firestore";
 import Swal from "sweetalert2";
 
-const registrarEnAgenda = async (evento) => {
-  const user = getAuth().currentUser;
-  if (!user) return Swal.fire("Error", "Debes iniciar sesión", "error");
-
-  try {
-    const agendaRef = doc(db, "Usuarios", user.uid, "AgendaUsuario", evento.id);
-    await setDoc(agendaRef, {
-      idEvento: evento.id,
-      fechaInscripcion: serverTimestamp(),
-      tituloEvento: evento.titulo,
-      fechaEvento: evento.fecha,
-      categoria: evento.categoria || "",
-      notificacion: false,
-      estado: "inscrito"
-    });
-
-    Swal.fire("¡Listo!", "Evento registrado en tu agenda", "success");
-  } catch (err) {
-    Swal.fire("Error al registrar", err.message, "error");
-  }
-};
-
-
 const Eventos = () => {
   const [usuario, setUsuario] = useState(null)
   const [rol, setRol] = useState(null)
   const [eventos, setEventos] = useState([])
   const [busqueda, setBusqueda] = useState('')
+  const [resaltarBusqueda, setResaltarBusqueda] = useState(false);
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null)
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [nuevoEvento, setNuevoEvento] = useState({
@@ -56,11 +35,14 @@ const Eventos = () => {
   const [filtroPatrocinador, setFiltroPatrocinador] = useState('')
   const [filtroPais, setFiltroPais] = useState('')
   const [filtroCiudad, setFiltroCiudad] = useState('')
-  const [filtroTags, setFiltroTags] = useState('')
-
+  const [filtroTags, setFiltroTags] = useState('') 
   const [paisesCiudades, setPaisesCiudades] = useState([])
+  const searchParams = useSearchParams();
+  const [eventosDestacados, setEventosDestacados] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const router = useRouter();
 
-  const [eventosDestacados, setEventosDestacados] = useState([])
+  
 
 
   useEffect(() => {
@@ -68,6 +50,19 @@ const Eventos = () => {
       .then(res => res.json())
       .then(data => setPaisesCiudades(data.data))
   }, [])
+
+  useEffect(() => {
+    const query = searchParams.get('busqueda');
+    if (query) {
+      setBusqueda(query);
+      setResaltarBusqueda(true); // activa el resaltado
+  
+      // lo desactiva después de 3 segundos
+      setTimeout(() => setResaltarBusqueda(false), 3000);
+    }
+  }, [searchParams]);
+  
+  
 
   const paises = paisesCiudades.map(p => p.country)
   const ciudades = nuevoEvento.pais
@@ -94,6 +89,15 @@ const Eventos = () => {
     });
     return () => unsubscribe();
   }, []);
+  
+
+useEffect(() => {
+  const query = searchParams.get('busqueda');
+  if (query) {
+    setBusqueda(query);
+  }
+}, [searchParams]);
+
 
   useEffect(() => {
     const obtenerEventos = async () => {
@@ -136,7 +140,6 @@ const Eventos = () => {
 
     obtenerEventos()
   }, [])
-  const router = useRouter()
 
 
   let eventosFiltrados = eventos
@@ -228,11 +231,36 @@ const Eventos = () => {
     setFiltroTags('')
     setBusqueda('')
   }
+  const registrarEnAgenda = async (evento) => {
+    const user = getAuth().currentUser;
+    if (!user) return Swal.fire("Error", "Debes iniciar sesión", "error");
+
+    setCargando(true);
+    try {
+      const agendaRef = doc(db, "Usuarios", user.uid, "AgendaUsuario", evento.id);
+      await setDoc(agendaRef, {
+        idEvento: evento.id,
+        fechaInscripcion: new Date(),
+        tituloEvento: evento.titulo,
+        fechaEvento: evento.fecha,
+        categoria: evento.categoria || "",
+        notificacion: false,
+        estado: "inscrito"
+      });
+
+      await Swal.fire("¡Listo!", "Evento registrado en tu agenda", "success");
+      router.push('/eventos');
+    } catch (err) {
+      Swal.fire("Error al registrar", err.message, "error");
+    } finally {
+      setCargando(false);
+    }
+  };
 
   return (
     <div className="px-4 py-8 max-w-6xl mx-auto">
       {rol === 'usuario' && usuario && (
-        <button className="fixed top-25 right-4 bg-orange-500 text-white rounded-full p-3 shadow-md z-50">🔔 Notificaciones</button>
+        <button className="fixed top-25 right-4 bg-orange-500 text-white rounded-full p-3 shadow-md z-50 cursor-pointer">🔔 Notificaciones</button>
       )}
       {rol === 'organizador' && (
         <button onClick={() => router.push('/organizador')} className="fixed top-25 right-4 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition z-50 cursor-pointer shadow-md">
@@ -241,16 +269,28 @@ const Eventos = () => {
 
       )}
       <h1 className="text-3xl font-bold mb-6">Eventos del Bicentenario</h1>
-      <Slider {...sliderSettings}>
-        {eventosDestacados.map(evento => (
-          <div key={evento.id} className="rounded overflow-hidden">
-            <img src={evento.imagen || '/anuncios/default.jpg'} className="rounded-md w-full h-64 object-cover" />
-            <h4 className="text-lg fonnt-bold mt-2 text-center">{evento.titulo}</h4>
-          </div>
-        ))}
-      </Slider>
+      {eventosDestacados.length === 0 ? (
+        <SkeletonCarrusel />
+      ) : (
+        <Slider {...sliderSettings}>
+          {eventosDestacados.map(evento => (
+            <div key={evento.id} className="rounded overflow-hidden">
+              <img src={evento.imagen || '/anuncios/default.jpg'} className="rounded-md w-full h-64 object-cover" />
+              <h4 className="text-lg font-bold mt-2 text-center">{evento.titulo}</h4>
+            </div>
+          ))}
+        </Slider>
+      )}
       <div className="mt-8">
-        <input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar eventos..." className="w-full p-3 border rounded-lg" />
+      <input
+        type="text"
+        className={`w-full p-2 border rounded transition-all duration-500 ${
+          resaltarBusqueda ? 'border-2 border-yellow-500 animate-pulse' : 'border-gray-300'
+        }`}
+        value={busqueda}
+        onChange={e => setBusqueda(e.target.value)}
+        placeholder="Buscar evento por título, expositor, patrocinador..."
+      />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
         <select className="p-2 border rounded" onChange={e => setFiltroCategoria(e.target.value)}>
@@ -339,7 +379,7 @@ const Eventos = () => {
       <div className="flex justify-end mt-2">
       <button
         onClick={limpiarFiltros}
-        className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+        className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition cursor-pointer"
       >
         Limpiar filtros
       </button>
@@ -391,15 +431,30 @@ const Eventos = () => {
               </p>
             )}
 
-            {/* Fecha*/}
+            {/* Fecha */}
+            {evento.fecha && (
+              <>
+                <p className="text-sm text-gray-500">
+                  <strong>Fecha:</strong>{" "}
+                  {evento.fecha.toDate
+                    ? evento.fecha.toDate().toLocaleDateString("es-BO")
+                    : new Date(evento.fecha).toLocaleDateString("es-BO")}
+                </p>
+                <p className="text-sm text-gray-500">
+                  <strong>Hora:</strong>{" "}
+                  {evento.fecha.toDate
+                    ? evento.fecha.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                    : new Date(evento.fecha).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </p>
+              </>
+            )}
+
+            {/* Ubicación */}
             <p className="text-sm text-gray-500">
-              <strong>Fecha/Lugar: </strong>
-              {(() =>
-                typeof evento.fecha?.toDate === 'function'
-                  ? evento.fecha.toDate().toLocaleDateString("es-BO")
-                  : new Date(evento.fecha).toLocaleDateString("es-BO")
-              )()} - {evento.lugar || evento.ciudad || 'Sin lugar'}
+              <strong>Ubicación:</strong>{" "}
+              {evento.pais || "País no definido"} - {evento.ciudad || "Ciudad no definida"}
             </p>
+
             {/* Direccion */}
             {evento.direccion && (
               <p className="text-sm text-gray-600 mt-1">
@@ -418,7 +473,7 @@ const Eventos = () => {
                 <strong>Costo:</strong> <span className="text-red-600">{evento.costo}</span>
               </p>
             )}
-            <button onClick={() => setEventoSeleccionado(evento)} className="mt-3 text-green-700 font-medium hover:underline">
+            <button onClick={() => setEventoSeleccionado(evento)} className="mt-3 text-green-700 font-medium hover:underline cursor-pointer">
               Ver más
             </button>
           </div>
@@ -432,7 +487,7 @@ const Eventos = () => {
           <div className="bg-white rounded-lg p-6 w-full max-w-3xl relative overflow-y-auto max-h-[90vh] shadow-lg">
             <button
               onClick={() => setEventoSeleccionado(null)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl"
+              className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl cursor-pointer"
             >
               ✖
             </button>
@@ -456,6 +511,9 @@ const Eventos = () => {
             <p className="text-gray-700 mb-2"><strong>Dirección:</strong> {eventoSeleccionado.direccion}</p>
             <p className="text-gray-700 mb-2"><strong>Ciudad:</strong> {eventoSeleccionado.ciudad}</p>
             <p className="text-gray-700 mb-2"><strong>País:</strong> {eventoSeleccionado.pais}</p>
+            <p className="text-gray-700 mb-2"><strong>Categoría:</strong> {eventoSeleccionado.categoria}</p>
+            <p className="text-gray-700 mb-2"><strong>Costo:</strong> {eventoSeleccionado.costo ? `Bs. ${eventoSeleccionado.costo}` : 'Gratuito'}</p>
+
             {/* Mapa de Google Maps */}
             {eventoSeleccionado.latitud && eventoSeleccionado.longitud && (
               <div className="mt-4">
@@ -483,9 +541,6 @@ const Eventos = () => {
                 </a>
               </div>
             )}
-
-            <p className="text-gray-700 mb-2"><strong>Categoría:</strong> {eventoSeleccionado.categoria}</p>
-            <p className="text-gray-700 mb-2"><strong>Costo:</strong> {eventoSeleccionado.costo ? `Bs. ${eventoSeleccionado.costo}` : 'Gratuito'}</p>
 
             {/* Etiquetas */}
             {eventoSeleccionado.tags?.length > 0 && (
@@ -527,10 +582,12 @@ const Eventos = () => {
             )}
             <button
               onClick={() => registrarEnAgenda(eventoSeleccionado)}
-              className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer disabled:opacity-50"
+              disabled={cargando}
             >
-              Registrar en mi Agenda
+              {cargando ? 'Registrando evento...' : 'Registrar en mi Agenda'}
             </button>
+
           </div>
         </div>
 
@@ -539,7 +596,7 @@ const Eventos = () => {
       {mostrarFormulario && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl relative">
-            <button className="absolute top-2 right-2 text-xl" onClick={() => setMostrarFormulario(false)}>✖</button>
+            <button className="absolute top-2 right-2 text-xl cursor-pointer" onClick={() => setMostrarFormulario(false)}>✖</button>
             <h2 className="text-2xl font-bold mb-4">Crear Nuevo Evento</h2>
             {[
               { label: "Título", campo: "titulo" },
@@ -563,7 +620,7 @@ const Eventos = () => {
                 />
               </div>
             ))}
-            <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded" onClick={handleGuardarEvento}>
+            <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded cursor-pointer" onClick={handleGuardarEvento}>
               Guardar Evento
             </button>
           </div>

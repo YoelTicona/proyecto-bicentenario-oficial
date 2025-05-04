@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useState, useRef } from 'react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../firebase/firebase-config'
@@ -15,7 +14,7 @@ export default function EventosDestacados() {
     const obtenerEventosDestacados = async () => {
       try {
         const eventosRef = collection(db, "Eventos");
-        const q = query(eventosRef, where("categoria", "==", "Academico"));
+        const q = query(eventosRef, where("categoria", "==", "Académico"));
         const querySnapshot = await getDocs(q);
   
         const eventosFiltrados = querySnapshot.docs.map((doc) => ({
@@ -77,9 +76,12 @@ export default function EventosDestacados() {
             />
             <h3 className="text-lg font-semibold">{evento.titulo}</h3>
             <p className="text-sm text-gray-700 mt-2 mb-4 line-clamp-3">{evento.descripcion}</p>
-            <Link href={`/eventos/${evento.id}`}>
-              <span className="text-blue-600 hover:underline">Ver más →</span>
+            <Link href={`/eventos?busqueda=${encodeURIComponent(evento.titulo)}`}>
+              <span className="inline-block mt-3 text-blue-600 hover:underline font-medium transition">
+                Ver más →
+              </span>
             </Link>
+
           </motion.div>
         ))}
       </div>

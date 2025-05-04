@@ -387,10 +387,10 @@ export default function PaginaOrganizador() {
               <button type="button" onClick={() => {
                 const nuevos = tags.filter((_, i) => i !== idx)
                 setTags(nuevos)
-              }} className="text-red-500 font-bold">✖</button>
+              }} className="text-red-500 font-bold cursor-pointer">✖</button>
             </div>
           ))}
-          <button type="button" onClick={() => setTags([...tags, ''])} className="text-blue-600 mt-2 underline">➕ Agregar tag</button>
+          <button type="button" onClick={() => setTags([...tags, ''])} className="text-blue-600 mt-2 underline cursor-pointer">➕ Agregar tag</button>
         </div>
 
         {/* Patrocinadores */}
@@ -412,10 +412,10 @@ export default function PaginaOrganizador() {
               <button type="button" onClick={() => {
                 const nuevos = patrocinadores.filter((_, i) => i !== idx)
                 setPatrocinadores(nuevos)
-              }} className="text-red-500 font-bold">✖</button>
+              }} className="text-red-500 font-bold cursor-pointer">✖</button>
             </div>
           ))}
-          <button type="button" onClick={() => setPatrocinadores([...patrocinadores, { nombre: '' }])} className="text-blue-600 mt-2 underline">➕ Agregar patrocinador</button>
+          <button type="button" onClick={() => setPatrocinadores([...patrocinadores, { nombre: '' }])} className="text-blue-600 mt-2 underline cursor-pointer">➕ Agregar patrocinador</button>
         </div>
 
         {/* Expositores */}
@@ -437,17 +437,17 @@ export default function PaginaOrganizador() {
               <button type="button" onClick={() => {
                 const nuevos = expositores.filter((_, i) => i !== idx)
                 setExpositores(nuevos)
-              }} className="text-red-500 font-bold">✖</button>
+              }} className="text-red-500 font-bold cursor-pointer">✖</button>
             </div>
           ))}
-          <button type="button" onClick={() => setExpositores([...expositores, { nombre: '' }])} className="text-blue-600 mt-2 underline">➕ Agregar expositor</button>
+          <button type="button" onClick={() => setExpositores([...expositores, { nombre: '' }])} className="text-blue-600 mt-2 underline cursor-pointer">➕ Agregar expositor</button>
         </div>
 
 
         <div className="text-center">
           <button
             type="submit"
-            className={`px-8 py-2 border-2 rounded-full font-semibold ${subiendo ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'border-green-600 text-green-700 hover:bg-green-100'
+            className={`cursor-pointer px-8 py-2 border-2 rounded-full font-semibold ${subiendo ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'border-green-600 text-green-700 hover:bg-green-100'
               }`}
             disabled={subiendo}
           >

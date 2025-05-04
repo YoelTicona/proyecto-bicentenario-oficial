@@ -14,13 +14,6 @@ const LoaderSpinner = () => (
   </div>
 )
 
-const navLinks = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Eventos', href: '/eventos' },
-  { label: 'Agenda', href: '/agenda' },
-  { label: 'Acerca de', href: '/acerca-de' }
-]
-
 const Header = () => {
   const pathname = usePathname()
   const auth = getAuth()
@@ -54,6 +47,14 @@ const Header = () => {
     });
     return () => unsubscribe();
   }, []);
+  const navLinks = [
+    { label: 'Inicio', href: '/' },
+    { label: 'Eventos', href: '/eventos' },
+    { label: 'Agenda',
+      href: usuario ? '/agenda' : '/agenda-publica'
+    },
+    { label: 'Acerca de', href: '/acerca-de' }
+  ]
 
 
   useEffect(() => {

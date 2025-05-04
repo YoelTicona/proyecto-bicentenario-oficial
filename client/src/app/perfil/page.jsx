@@ -93,7 +93,7 @@ export default function PerfilUsuario() {
         <p className="text-gray-600 text-sm">{usuario.email}</p>
         {!editando && (
           <button
-            className="mt-3 text-sm bg-[#889E73] text-white px-4 py-1 rounded-full hover:bg-[#6f825e]"
+            className="cursor-pointer mt-3 text-sm bg-[#889E73] text-white px-4 py-1 rounded-full hover:bg-[#6f825e]"
             onClick={() => setEditando(true)}
           >
             Editar perfil
@@ -124,13 +124,13 @@ export default function PerfilUsuario() {
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={() => setEditando(false)}
-            className="px-4 py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400"
+            className="px-4 py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400 cursor-pointer"
           >
             Cancelar
           </button>
           <button
             onClick={guardarCambios}
-            className="px-4 py-2 rounded bg-[#889E73] text-white hover:bg-[#6f825e]"
+            className="px-4 py-2 rounded bg-[#889E73] text-white hover:bg-[#6f825e] cursor-pointer"
             disabled={subiendo}
           >
             {subiendo ? 'Subiendo...' : 'Guardar cambios'}

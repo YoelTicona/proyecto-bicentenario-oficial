@@ -163,7 +163,7 @@ export default function IniciarSesion() {
 
           <button
             type="submit"
-            className="w-full py-2 text-white bg-[#889E73] hover:bg-[#6f825e] rounded transition hover:scale-105"
+            className="w-full py-2 text-white bg-[#889E73] hover:bg-[#6f825e] rounded transition hover:scale-105 cursor-pointer"
           >
             Iniciar sesión
           </button>

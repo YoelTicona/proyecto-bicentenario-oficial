@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc } from 'firebase/firestore'
+import { collection, getDocs, deleteDoc, doc, updateDoc, setDoc } from 'firebase/firestore'
 import { db, firebaseConfig } from '../../firebase/firebase-config'
 import Swal from 'sweetalert2'
 import { initializeApp } from 'firebase/app'
@@ -102,6 +102,26 @@ export default function Superusuario() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Panel del Superusuario</h1>
 
+      {/* Estadísticas rápidas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-4 rounded shadow text-center">
+          <h3 className="text-sm font-semibold">Usuarios</h3>
+          <p className="text-2xl font-bold text-blue-600">{usuarios.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded shadow text-center">
+          <h3 className="text-sm font-semibold">Eventos</h3>
+          <p className="text-2xl font-bold text-green-600">{eventos.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded shadow text-center">
+          <h3 className="text-sm font-semibold">Organizadores</h3>
+          <p className="text-2xl font-bold text-emerald-500">{usuarios.filter(u => u.rol === 'organizador').length}</p>
+        </div>
+        <div className="bg-white p-4 rounded shadow text-center">
+          <h3 className="text-sm font-semibold">Administradores</h3>
+          <p className="text-2xl font-bold text-yellow-500">{usuarios.filter(u => u.rol === 'administrador').length}</p>
+        </div>
+      </div>
+
       {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white p-4 rounded shadow">
@@ -131,7 +151,7 @@ export default function Superusuario() {
         </div>
       </div>
 
-      {/* Sección de gestión de usuarios */}
+      {/* Gestión de usuarios */}
       <h2 className="text-xl font-bold mb-4">Gestión de Usuarios</h2>
       <div className="flex gap-4 mb-6">
         <input

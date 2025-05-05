@@ -1,7 +1,6 @@
 'use client'
 import { useEffect } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import Link from 'next/link'
 
 export default function ChatWidget() {
   useEffect(() => {
@@ -28,7 +27,7 @@ export default function ChatWidget() {
             theme: {
               button: {
                 icon: '💬',
-                position: 'bottom-right'
+                position: 'bottom-right py-4 px-4'
               }
             },
             chat: {
@@ -45,7 +44,7 @@ export default function ChatWidget() {
   }, [])
 
   return (
-    <Link
+    <link
       href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css"
       rel="stylesheet"
     />

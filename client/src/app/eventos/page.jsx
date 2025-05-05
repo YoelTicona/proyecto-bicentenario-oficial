@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { setDoc, serverTimestamp } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { Suspense } from 'react';
+import Link from 'next/link'
 
 function SearchHandler({ setBusqueda, setResaltarBusqueda }) {
   const searchParams = useSearchParams();
@@ -510,7 +511,7 @@ const Eventos = () => {
               <p className="text-gray-700 mb-2"><strong>Fecha y hora:</strong> {new Date(eventoSeleccionado.fecha.toDate()).toLocaleString()}</p>
               <p className="text-gray-700 mb-2"><strong>Modalidad:</strong> {eventoSeleccionado.modalidad}</p>
               {eventoSeleccionado.link && (
-                <p className="text-gray-700 mb-2"><strong>Enlace:</strong> <a href={eventoSeleccionado.link} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">{eventoSeleccionado.link}</a></p>
+                <p className="text-gray-700 mb-2"><strong>Enlace:</strong> <Link href={eventoSeleccionado.link} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">{eventoSeleccionado.link}</Link></p>
               )}
               <p className="text-gray-700 mb-2"><strong>Dirección:</strong> {eventoSeleccionado.direccion}</p>
               <p className="text-gray-700 mb-2"><strong>Ciudad:</strong> {eventoSeleccionado.ciudad}</p>
@@ -535,14 +536,14 @@ const Eventos = () => {
                     ></iframe>
                   </div>
 
-                  <a
+                  <Link
                     href={`https://www.google.com/maps/search/?api=1&query=${eventoSeleccionado.latitud},${eventoSeleccionado.longitud}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline mt-2 inline-block"
                   >
                     📍 Abrir en Google Maps
-                  </a>
+                  </Link>
                 </div>
               )}
 

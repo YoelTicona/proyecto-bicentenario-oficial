@@ -23,11 +23,11 @@ function CapturarClick({ setUbicacion }) {
   return null
 }
 
-export default function MapaEvento({ ubicacionMapa, ubicacion, setUbicacion }) {
+export default function MapaEvento({ ubicacionMapa, ubicacion, setUbicacion, zoom }) {
   return (
     <MapContainer
       center={[ubicacionMapa.lat, ubicacionMapa.lng]}
-      zoom={6}
+      zoom={zoom}
       style={{ width: '100%', height: '300px' }}
     >
       <TileLayer

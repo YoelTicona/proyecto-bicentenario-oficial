@@ -21,7 +21,7 @@ export default function Hero() {
           “200 años de lucha, identidad y esplendor. ¡Celebremos juntos el Bicentenario!”
         </p>
         <Link href="eventos" className="inline-block">
-          <button className="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full shadow-lg">
+          <button className="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full shadow-lg cursor-pointer">
             Ver eventos
           </button>
         </Link>

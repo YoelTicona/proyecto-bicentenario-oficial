@@ -9,35 +9,12 @@ import Swal from 'sweetalert2'
 import { motion } from 'framer-motion'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
 import SkeletonFormularioEvento from '../../components/SkeletonForm'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 
-// Fix icon issue (porque React-Leaflet no carga los íconos por defecto)
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-})
-
-
-function CapturarClick({ setUbicacion }) {
-  useMapEvents({
-    click(e) {
-      setUbicacion({
-        lat: e.latlng.lat,
-        lng: e.latlng.lng
-      })
-    },
-  })
-  return null
-}
-
-
-
-
-
+// Importar el mapa solo en el cliente
+const MapaEvento = dynamic(() => import('../../components/MapaEvento'), { ssr: false })
 
 export default function PaginaOrganizador() {
   const [usuario, setUsuario] = useState(null)
@@ -55,6 +32,8 @@ export default function PaginaOrganizador() {
   const [expositores, setExpositores] = useState([{ nombre: '' }])
   const [tags, setTags] = useState(['']) // Empieza con un campo vacío
   const fechaHoraCompleta = new Date(`${evento.fecha}T${evento.hora}`)
+  const [zoom, setZoom] = useState(14); // Zoom por defecto para ciudad
+
 
 
 
@@ -92,18 +71,26 @@ export default function PaginaOrganizador() {
     if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const { latitude, longitude } = position.coords;
+  
           setUbicacionMapa({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          })
+            lat: latitude,
+            lng: longitude
+          });
+  
+          setUbicacion({
+            lat: latitude,
+            lng: longitude
+          });
+          setZoom(18);
         },
         (error) => {
-          console.warn('No se pudo obtener ubicación, usando La Paz por defecto.', error)
-          // No hacemos nada, se queda en La Paz
+          console.warn('No se pudo obtener ubicación, usando La Paz por defecto.', error);
         }
       )
     }
-  }, [])
+  }, []);
+  
 
   const handleChange = (e) => {
     const { name, value, files } = e.target
@@ -310,22 +297,11 @@ export default function PaginaOrganizador() {
         {/* Mapa */}
         <div className="mt-4">
           <label className="block mb-1">Ubicación GPS (haz clic en el mapa)</label>
-          <MapContainer
-            center={[ubicacionMapa.lat, ubicacionMapa.lng]}
-            zoom={6}
-            style={{ width: '100%', height: '300px' }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-
-            <CapturarClick setUbicacion={setUbicacion} />
-
-            {ubicacion.lat && (
-              <Marker position={[ubicacion.lat, ubicacion.lng]} />
-            )}
-          </MapContainer>
+          <MapaEvento 
+            ubicacionMapa={ubicacionMapa}
+            ubicacion={ubicacion}
+            setUbicacion={setUbicacion}
+            zoom={zoom} />
 
           {ubicacion.lat && (
             <p className="mt-2 text-sm text-gray-600">

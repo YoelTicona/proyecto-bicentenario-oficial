@@ -11,6 +11,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import SkeletonFormularioEvento from '../../components/SkeletonForm'
+import dynamic from 'next/dynamic'
 
 // Fix icon issue (porque React-Leaflet no carga los íconos por defecto)
 delete L.Icon.Default.prototype._getIconUrl
@@ -88,7 +89,7 @@ export default function PaginaOrganizador() {
   }, [router])
 
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUbicacionMapa({
@@ -103,23 +104,6 @@ export default function PaginaOrganizador() {
       )
     }
   }, [])
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUbicacionMapa({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          })
-        },
-        (error) => {
-          console.warn('No se pudo obtener ubicación, usando La Paz por defecto.', error)
-          // No hacemos nada, se queda en La Paz
-        }
-      )
-    }
-  }, [])
-
 
   const handleChange = (e) => {
     const { name, value, files } = e.target

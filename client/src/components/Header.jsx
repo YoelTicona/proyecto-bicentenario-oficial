@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from './../firebase/firebase-config'
+import { useRouter } from 'next/navigation'
 
 // Spinner simple
 const LoaderSpinner = () => (
@@ -28,6 +29,7 @@ const Header = () => {
   const [datosFirestore, setDatosFirestore] = useState(null)
   const [loadingUsuario, setLoadingUsuario] = useState(true)
   const [showDropdown, setShowDropdown] = useState(false)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
   const [menuOpen, setMenuOpen] = useState(false)
   const dropdownRef = useRef()
 
@@ -73,11 +75,19 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const router = useRouter()
+
   const cerrarSesion = async () => {
-    await signOut(auth)
-    setUsuario(null)
-    setMenuOpen(false)
+    try {
+      await signOut(auth)
+      setUsuario(null)
+      setMenuOpen(false)
+      router.push('/') // 👈 Redirige al inicio
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error)
+    }
   }
+
 
   return (
     <header className="sticky top-0 z-50 bg-[#1d4f3f] text-white shadow-md">
@@ -141,6 +151,8 @@ const Header = () => {
                         <Link href="/organizador">Administrar eventos</Link>
                       </li>
                     )}
+
+
                     {datosFirestore?.rol === 'superusuario' && (
                       <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
                         <Link href="/superusuario">Panel Superusuario</Link>
@@ -204,6 +216,18 @@ const Header = () => {
                   Administrar eventos
                 </Link>
               )}
+              {datosFirestore?.rol === 'organizador' && isMobile && (
+                <Link href="/organizador" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
+                  Escanear asistentes
+                </Link>
+              )}
+              {['usuario', 'organizador'].includes(datosFirestore?.rol) && (
+                <Link href="/qr" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
+                  Ver mi QR
+                </Link>
+              )}
+
+
               {datosFirestore?.rol === 'superusuario' && (
                 <li className="px-4 py-2 hover:bg-[#c6d4b8] cursor-pointer">
                   <Link href="/superusuario">Panel Superusuario</Link>

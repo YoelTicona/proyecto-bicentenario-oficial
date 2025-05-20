@@ -102,7 +102,7 @@ export default function Superusuario() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Panel del Superusuario</h1>
 
-      {/* Estadísticas rápidas */}
+      {/* Estadísticas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded shadow text-center">
           <h3 className="text-sm font-semibold">Usuarios</h3>
@@ -153,37 +153,19 @@ export default function Superusuario() {
 
       {/* Gestión de usuarios */}
       <h2 className="text-xl font-bold mb-4">Gestión de Usuarios</h2>
-      <div className="flex gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Nombre"
-          className="p-2 border rounded w-1/3"
-          value={nuevoUsuario.nombre}
-          onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, nombre: e.target.value })}
-        />
-        <input
-          type="email"
-          placeholder="Correo"
-          className="p-2 border rounded w-1/3"
-          value={nuevoUsuario.correo}
-          onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, correo: e.target.value })}
-        />
-        <select
-          className="p-2 border rounded w-1/4"
-          value={nuevoUsuario.rol}
-          onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, rol: e.target.value })}
-        >
+      <div className="flex flex-wrap gap-4 mb-6">
+        <input type="text" placeholder="Nombre" className="p-2 border rounded w-full md:w-1/4" value={nuevoUsuario.nombre} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, nombre: e.target.value })} />
+        <input type="email" placeholder="Correo" className="p-2 border rounded w-full md:w-1/4" value={nuevoUsuario.correo} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, correo: e.target.value })} />
+        <select className="p-2 border rounded w-full md:w-1/4" value={nuevoUsuario.rol} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, rol: e.target.value })}>
           <option value="usuario">Usuario</option>
           <option value="organizador">Organizador</option>
           <option value="administrador">Administrador</option>
         </select>
-        <button onClick={guardarUsuario} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-          Crear
-        </button>
+        <button onClick={guardarUsuario} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full md:w-auto">Crear</button>
       </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="w-full text-left">
+      <div className="bg-white shadow rounded-lg overflow-x-auto">
+        <table className="min-w-full text-sm text-left whitespace-nowrap">
           <thead className="bg-gray-100">
             <tr>
               <th className="py-3 px-6">Nombre</th>
@@ -196,25 +178,13 @@ export default function Superusuario() {
             {usuarios.map(usuario => (
               <tr key={usuario.id} className="border-t">
                 <td className="px-6 py-3">{editando?.id === usuario.id ? (
-                  <input
-                    value={editando.nombre}
-                    onChange={(e) => setEditando({ ...editando, nombre: e.target.value })}
-                    className="border p-1 rounded"
-                  />
+                  <input value={editando.nombre} onChange={(e) => setEditando({ ...editando, nombre: e.target.value })} className="border p-1 rounded w-full" />
                 ) : usuario.nombre}</td>
                 <td className="px-6 py-3">{editando?.id === usuario.id ? (
-                  <input
-                    value={editando.correo}
-                    onChange={(e) => setEditando({ ...editando, correo: e.target.value })}
-                    className="border p-1 rounded"
-                  />
+                  <input value={editando.correo} onChange={(e) => setEditando({ ...editando, correo: e.target.value })} className="border p-1 rounded w-full" />
                 ) : usuario.correo}</td>
                 <td className="px-6 py-3">{editando?.id === usuario.id ? (
-                  <select
-                    value={editando.rol}
-                    onChange={(e) => setEditando({ ...editando, rol: e.target.value })}
-                    className="border p-1 rounded"
-                  >
+                  <select value={editando.rol} onChange={(e) => setEditando({ ...editando, rol: e.target.value })} className="border p-1 rounded w-full">
                     <option value="usuario">Usuario</option>
                     <option value="organizador">Organizador</option>
                     <option value="administrador">Administrador</option>

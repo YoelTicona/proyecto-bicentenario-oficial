@@ -117,7 +117,7 @@ export default function IniciarSesion() {
 
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-[#889E73] px-4 overflow-hidden py-10">
+<div className="relative flex items-center justify-center min-h-screen bg-[#889E73] px-4 py-10">
       <FishDecorativo />
       <div className="relative z-10 bg-white rounded-lg shadow-xl p-6 w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-4">

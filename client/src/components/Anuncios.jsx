@@ -1,5 +1,6 @@
 import 'aos/dist/aos.css'
 import AOS from 'aos'
+import Link from 'next/link'
 const Anuncios = () => {
     const anuncios = [
       {
@@ -28,7 +29,7 @@ const Anuncios = () => {
   
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {anuncios.map((anuncio, index) => (
-            <a
+            <Link
               key={index}
               href={anuncio.link}
               className="bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition"
@@ -42,7 +43,7 @@ const Anuncios = () => {
                 <h3 className="text-lg font-semibold">{anuncio.titulo}</h3>
                 <p className="text-gray-600 text-sm mt-1">{anuncio.descripcion}</p>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </section>

@@ -1,6 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 export default function AcercaDe() {
     const [mostrarTexto, setMostrarTexto] = useState(false)
@@ -44,7 +45,7 @@ export default function AcercaDe() {
 
                 {/* Video de YouTube */}
                 <section className="flex justify-center animate-fade-in">
-                    <a
+                    <Link
                         href="https://youtu.be/Rf3vcCIlOyk?si=HNbUxDBx5Sw4bXzw&t=8"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -64,7 +65,7 @@ export default function AcercaDe() {
                                 </svg>
                             </div>
                         </div>
-                    </a>
+                    </Link>
                 </section>
 
 

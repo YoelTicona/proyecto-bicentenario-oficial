@@ -15,13 +15,6 @@ const LoaderSpinner = () => (
   </div>
 )
 
-const navLinks = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Eventos', href: '/eventos' },
-  { label: 'Agenda', href: '/agenda' },
-  { label: 'Acerca de', href: '/acerca-de' }
-]
-
 const Header = () => {
   const pathname = usePathname()
   const auth = getAuth()
@@ -56,16 +49,17 @@ const Header = () => {
     });
     return () => unsubscribe();
   }, []);
+  const navLinks = [
+    { label: 'Inicio', href: '/' },
+    { label: 'Eventos', href: '/eventos' },
+    { label: 'Agenda',
+      href: usuario ? '/agenda' : '/agenda-publica'
+    },
+    { label: 'Acerca de', href: '/acerca-de' }
+  ]
 
 
   useEffect(() => {
-    /*************  ✨ Windsurf Command ⭐  *************/
-    /**
-     * Cierra el men  desplegable al hacer clic fuera de  l.
-     * Se utiliza en el evento 'mousedown' del documento.
-     * @param {MouseEvent} event - El evento de clic.
-     */
-    /*******  c978b4ef-75df-4aa9-b1e8-6868ae80ba8e  *******/
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false)

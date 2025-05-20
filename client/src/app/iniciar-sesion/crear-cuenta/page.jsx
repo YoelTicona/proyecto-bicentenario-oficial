@@ -278,7 +278,7 @@ export default function RegistroUsuario() {
         <div className="text-center">
           <button
             type="submit"
-            className="bg-[#889E73] text-white px-6 py-2 rounded-full hover:bg-[#6f825e] transition"
+            className="bg-[#889E73] text-white px-6 py-2 rounded-full hover:bg-[#6f825e] transition cursor-pointer"
           >
             Registrarse
           </button>

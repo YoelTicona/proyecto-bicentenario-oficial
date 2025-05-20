@@ -161,7 +161,9 @@ export default function Superusuario() {
           <option value="organizador">Organizador</option>
           <option value="administrador">Administrador</option>
         </select>
-        <button onClick={guardarUsuario} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full md:w-auto">Crear</button>
+        <button onClick={guardarUsuario} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+          Crear
+        </button>
       </div>
 
       <div className="bg-white shadow rounded-lg overflow-x-auto">
@@ -193,13 +195,13 @@ export default function Superusuario() {
                 <td className="px-6 py-3 flex gap-2">
                   {editando?.id === usuario.id ? (
                     <>
-                      <button onClick={actualizarUsuario} className="text-green-600">Guardar</button>
-                      <button onClick={() => setEditando(null)} className="text-gray-500">Cancelar</button>
+                      <button onClick={actualizarUsuario} className="text-green-600 cursor-pointer">Guardar</button>
+                      <button onClick={() => setEditando(null)} className="text-gray-500 cursor-pointer">Cancelar</button>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => setEditando(usuario)} className="text-blue-600">Editar</button>
-                      <button onClick={() => eliminarUsuario(usuario.id)} className="text-red-600">Eliminar</button>
+                      <button onClick={() => setEditando(usuario)} className="text-blue-600 cursor-pointer">Editar</button>
+                      <button onClick={() => eliminarUsuario(usuario.id)} className="text-red-600 cursor-pointer">Eliminar</button>
                     </>
                   )}
                 </td>

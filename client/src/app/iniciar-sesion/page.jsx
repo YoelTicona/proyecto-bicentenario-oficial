@@ -8,6 +8,7 @@ import ReCAPTCHA from 'react-google-recaptcha'
 import { loginUsuario } from '../../services/auth'
 import { doc, updateDoc,getDoc,setDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase-config";
+import Link from 'next/link'
 
 export default function IniciarSesion() {
   const [verContrasenia, setVerContrasenia] = useState(false)
@@ -163,7 +164,7 @@ export default function IniciarSesion() {
 
           <button
             type="submit"
-            className="w-full py-2 text-white bg-[#889E73] hover:bg-[#6f825e] rounded transition hover:scale-105"
+            className="w-full py-2 text-white bg-[#889E73] hover:bg-[#6f825e] rounded transition hover:scale-105 cursor-pointer"
           >
             Iniciar sesión
           </button>
@@ -172,15 +173,15 @@ export default function IniciarSesion() {
         <div className="mt-4 text-sm text-gray-600 text-center">
           <p>
             ¿No tienes cuenta?{' '}
-            <a href="/iniciar-sesion/crear-cuenta" className="text-blue-700 font-semibold">
+            <Link href="/iniciar-sesion/crear-cuenta" className="text-blue-700 font-semibold">
               Crea una cuenta
-            </a>
+            </Link>
           </p>
           <p>
             ¿Olvidaste tu contraseña?{' '}
-            <a href="/iniciar-sesion/recuperar-acceso" className="text-blue-700 font-semibold">
+            <Link href="/iniciar-sesion/recuperar-acceso" className="text-blue-700 font-semibold">
               Recuperar acceso
-            </a>
+            </Link>
           </p>
         </div>
       </div>

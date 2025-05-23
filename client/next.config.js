@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone',
+    output: 'export',
     images: {
       unoptimized: true, //  esto evita el error de next/image
     },

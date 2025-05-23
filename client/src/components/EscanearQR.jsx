@@ -1,49 +1,62 @@
 'use client'
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import { setDoc, doc, Timestamp } from "firebase/firestore";
-import { db } from "../firebase/firebase-config";
+import { useEffect, useRef } from 'react'
+import { Html5Qrcode } from 'html5-qrcode'
+import { doc, setDoc, Timestamp } from 'firebase/firestore'
+import { db } from '../firebase/firebase-config'
 
+export default function EscanearQR({ idEvento }) {
+  const qrRef = useRef(null)
+  const scannerRef = useRef(null)
+  const hasScannedRef = useRef(false)
 
-// Usamos dynamic para que funcione en Next.js (solo en cliente)
-const QrReader = dynamic(() => import('react-qr-reader').then(mod => mod.QrReader), { ssr: false });
+  useEffect(() => {
+    if (!qrRef.current) return
 
-const EscanearQR = ({ idEvento }) => {
-  const [resultado, setResultado] = useState(null);
+    const scanner = new Html5Qrcode(qrRef.current.id)
+    scannerRef.current = scanner
 
-  const handleScan = async (data) => {
-    if (data) {
-      try {
-        const usuario = JSON.parse(data);
-        await setDoc(doc(db, "Eventos", idEvento, "Asistencias", usuario.uid), {
-          nombre: usuario.nombre,
-          correo: usuario.correo,
-          escaneado: true,
-          hora_escaneo: Timestamp.now()
-        });
-        setResultado(` Asistencia registrada para ${usuario.nombre}`);
-      } catch (error) {
-        setResultado(" Error al procesar el QR");
+    scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: 250 },
+      async (decodedText) => {
+        if (hasScannedRef.current) return // 🔒 evita múltiples ejecuciones
+
+        try {
+          const usuario = JSON.parse(decodedText)
+
+          if (!usuario.uid || !usuario.nombre || !usuario.correo) {
+            alert(' QR no válido (datos incompletos)')
+          } else {
+            const ref = doc(db, 'Eventos', idEvento, 'Asistencias', usuario.uid)
+            await setDoc(ref, {
+              nombre: usuario.nombre,
+              correo: usuario.correo,
+              escaneado: true,
+              hora_escaneo: Timestamp.now(),
+            })
+            alert(` Registrado: ${usuario.nombre}`)
+          }
+        } catch (e) {
+          alert(' QR no válido')
+        } finally {
+          hasScannedRef.current = true
+          scanner.stop().catch(() => {})
+        }
+      },
+      (err) => {
+        console.warn('Error escaneando:', err)
       }
-    }
-  };
+    )
 
-  const handleError = (err) => {
-    console.error(err);
-  };
+    return () => {
+      scanner.stop().catch(() => {})
+    }
+  }, [idEvento])
 
   return (
-    <div className="p-4">
+    <div>
       <h2 className="text-xl font-bold mb-2">Escanear QR</h2>
-      <QrReader
-        delay={300}
-        onError={handleError}
-        onScan={handleScan}
-        style={{ width: "100%" }}
-      />
-      {resultado && <p className="mt-4 text-center">{resultado}</p>}
+      <div id="reader" ref={qrRef} className="w-full h-64 border" />
     </div>
-  );
-};
-
-export default EscanearQR;
+  )
+}

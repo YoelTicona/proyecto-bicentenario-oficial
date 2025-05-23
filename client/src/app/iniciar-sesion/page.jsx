@@ -78,7 +78,7 @@ export default function IniciarSesion() {
       Swal.fire({
         icon: 'success',
         title: `Bienvenido`,
-        text: `${user.email} \n ¡Has iniciado sesión correctamente!`,
+        text: `${user.email} \n ¡Haz iniciado sesión correctamente!`,
         timer: 2000,
         showConfirmButton: false
       });

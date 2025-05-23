@@ -190,14 +190,14 @@ export default function Eventos() {
                   className="bg-purple-600 text-white px-4 py-2 rounded w-full"
                   onClick={() => setMostrarQR(!mostrarQR)}
                 >
-                  📷 Llamar lista (Escanear QR)
+                   Escanear QR
                 </button>
 
                 <button
                   className="bg-indigo-500 text-white px-4 py-2 rounded w-full"
                   onClick={() => router.push(`/asistencia/${eventoSeleccionado.id}`)}
                 >
-                  📋 Ver lista de asistentes
+                   Ver lista de asistentes
                 </button>
 
                 {mostrarQR && (

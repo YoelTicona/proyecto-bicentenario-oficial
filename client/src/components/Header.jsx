@@ -210,11 +210,7 @@ const Header = () => {
                   Administrar eventos
                 </Link>
               )}
-              {datosFirestore?.rol === 'organizador' && isMobile && (
-                <Link href="/organizador" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
-                  Escanear asistentes
-                </Link>
-              )}
+              
               {['usuario', 'organizador'].includes(datosFirestore?.rol) && (
                 <Link href="/qr" onClick={() => setMenuOpen(false)} className="block text-sm hover:text-yellow-300">
                   Ver mi QR

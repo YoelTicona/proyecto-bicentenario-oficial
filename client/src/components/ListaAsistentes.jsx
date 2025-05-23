@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "../firebase/firebase-config"
 
+console.log('EscanearQR:', EscanearQR);
+
 const ListaAsistentes = ({ idEvento }) => {
   const [asistentes, setAsistentes] = useState([])
   const [loading, setLoading] = useState(true)
